@@ -25,31 +25,34 @@ class GeneApp_WP_Admin {
     }
     
     /**
-     * Gestionnaire AJAX pour récupérer automatiquement les identifiants
-     */
-    public function ajax_get_credentials() {
-        // Vérifier le nonce
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'geneapp_auto_credentials')) {
-            wp_send_json_error(array('message' => 'Erreur de sécurité, veuillez rafraîchir la page.'));
-        }
-        
-        // Vérifier les données
-        if (empty($_POST['email']) || empty($_POST['domain'])) {
-            wp_send_json_error(array('message' => 'Email ou domaine manquant.'));
-        }
-        
-        $email = sanitize_email($_POST['email']);
-        $domain = sanitize_text_field($_POST['domain']);
-        
-        // Contacter l'API Cloudflare Worker
-        $response = wp_remote_post('https://partner.genealogie.app/register', array(
-            'body' => array(
-                'email' => $email,
-                'domain' => $domain,
-                'source' => 'wordpress_plugin',
-            ),
-            'timeout' => 15,
-        ));
+ * Gestionnaire AJAX pour récupérer automatiquement les identifiants
+ */
+public function ajax_get_credentials() {
+    // Vérifier le nonce
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'geneapp_auto_credentials')) {
+        wp_send_json_error(array('message' => 'Erreur de sécurité, veuillez rafraîchir la page.'));
+    }
+    
+    // Vérifier les données
+    if (empty($_POST['email']) || empty($_POST['domain'])) {
+        wp_send_json_error(array('message' => 'Email ou domaine manquant.'));
+    }
+    
+    $email = sanitize_email($_POST['email']);
+    $domain = sanitize_text_field($_POST['domain']);
+    
+    // Contacter l'API Cloudflare Worker avec des données JSON
+    $response = wp_remote_post('https://partner.genealogie.app/register', array(
+        'headers' => array(
+            'Content-Type' => 'application/json',
+        ),
+        'body' => json_encode(array(
+            'email' => $email,
+            'domain' => $domain,
+            'source' => 'wordpress_plugin',
+        )),
+        'timeout' => 15,
+    ));
         
         if (is_wp_error($response)) {
             wp_send_json_error(array('message' => 'Erreur de connexion : ' . $response->get_error_message()));

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: GeneApp WP
  * Description: Intégration de GeneApp avec template de page dédié
- * Version: 1.7.1
+ * Version: 1.7.2
  * Author: geneapp-wp.fr
  */
 
