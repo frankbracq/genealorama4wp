@@ -2,7 +2,7 @@
 /**
  * Plugin Name: GeneApp WP
  * Description: Intégration de GeneApp avec template de page dédié
- * Version: 1.7.2
+ * Version: 1.7.3
  * Author: geneapp-wp.fr
  */
 
@@ -36,60 +36,64 @@ class GeneApp_WP {
     }
     
     /**
-     * Callback du shortcode pour l'intégration de GeneApp
-     */
-    public function geneapp_shortcode($atts) {
-        if (!is_user_logged_in()) {
-            return '<p>Veuillez vous connecter pour accéder à cette fonctionnalité.</p>';
+ * Callback du shortcode pour l'intégration de GeneApp
+ */
+public function geneapp_shortcode($atts) {
+    if (!is_user_logged_in()) {
+        return '<p>Veuillez vous connecter pour accéder à cette fonctionnalité.</p>';
+    }
+
+    $current_user = wp_get_current_user();
+    $user_data = [
+        'id'        => $current_user->ID,
+        'email'     => $current_user->user_email,
+        'timestamp' => time(),
+    ];
+
+    $atts = shortcode_atts([
+        'src'         => 'https://genealogie.app/wp-embed/',
+        'width'       => '100%',
+        'height'      => 'auto',
+        'auto_height' => 'true',
+        'fullscreen'  => 'false',
+    ], $atts);
+
+    // Récupérer les infos partenaire depuis les options
+    $partner_id = get_option('geneapp_partner_id', '');
+    $partner_secret = get_option('geneapp_partner_secret', '');
+
+    // Vérifier si les informations de partenaire sont configurées
+    if (empty($partner_id) || empty($partner_secret)) {
+        if (current_user_can('manage_options')) {
+            return '<p>Veuillez configurer les informations de partenaire GeneApp dans les <a href="' . 
+                admin_url('options-general.php?page=geneapp-wp-settings') . 
+                '">paramètres du plugin</a>.</p>';
+        } else {
+            return '<p>Cette fonctionnalité n\'est pas encore configurée. Veuillez contacter l\'administrateur du site.</p>';
         }
+    }
 
-        $current_user = wp_get_current_user();
-        $user_data = [
-            'id'        => $current_user->ID,
-            'email'     => $current_user->user_email,
-            'timestamp' => time(),
-        ];
+    // Génération de la signature
+    $signature = geneapp_wp_generate_signature($partner_id, $user_data, $partner_secret);
 
-        $atts = shortcode_atts([
-            'src'         => 'https://genealogie.app/wp-embed/',
-            'width'       => '100%',
-            'height'      => 'auto',
-            'auto_height' => 'true',
-            'fullscreen'  => 'false',
-        ], $atts);
+    // Construction de l'URL
+    $iframe_url = add_query_arg([
+        'partner_id' => $partner_id,
+        'uid'        => $user_data['id'],
+        'email'      => urlencode($user_data['email']),
+        'ts'         => $user_data['timestamp'],
+        'sig'        => $signature,
+    ], $atts['src']);
 
-        // Infos partenaire (idéalement à stocker dans les options)
-        $partner_id = get_option('geneapp_partner_id', '');
-$partner_secret = get_option('geneapp_partner_secret', '');
+    $iframe_id = 'wpGeneappIframe_' . uniqid();
+    
+    // Classe CSS pour le conteneur
+    $container_class = 'geneapp-container';
+    if ($atts['fullscreen'] === 'true') {
+        $container_class .= ' geneapp-fullscreen';
+    }
 
-// Vérifier si les informations de partenaire sont configurées
-if (empty($partner_id) || empty($partner_secret)) {
-    return '<p>Veuillez configurer les informations de partenaire GeneApp dans les <a href="' . 
-           admin_url('options-general.php?page=geneapp-wp-settings') . 
-           '">paramètres du plugin</a>.</p>';
-}
-
-        // Génération de la signature
-        $signature = geneapp_wp_generate_signature($partner_id, $user_data, $partner_secret);
-
-        // Construction de l'URL
-        $iframe_url = add_query_arg([
-            'partner_id' => $partner_id,
-            'uid'        => $user_data['id'],
-            'email'      => urlencode($user_data['email']),
-            'ts'         => $user_data['timestamp'],
-            'sig'        => $signature,
-        ], $atts['src']);
-
-        $iframe_id = 'wpGeneappIframe_' . uniqid();
-        
-        // Classe CSS pour le conteneur
-        $container_class = 'geneapp-container';
-        if ($atts['fullscreen'] === 'true') {
-            $container_class .= ' geneapp-fullscreen';
-        }
-
-        ob_start();
+    ob_start();
         ?>
         <div class="<?php echo esc_attr($container_class); ?>">
             <iframe id="<?php echo esc_attr($iframe_id); ?>"
