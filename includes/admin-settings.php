@@ -19,6 +19,54 @@ class GeneApp_WP_Admin {
         // Ajouter le lien "Paramètres" dans la liste des plugins
         $plugin_basename = plugin_basename(dirname(dirname(__FILE__)) . '/geneapp-wp.php');
         add_filter('plugin_action_links_' . $plugin_basename, array($this, 'add_settings_link'));
+        
+        // Ajouter le gestionnaire AJAX
+        add_action('wp_ajax_geneapp_get_credentials', array($this, 'ajax_get_credentials'));
+    }
+    
+    /**
+     * Gestionnaire AJAX pour récupérer automatiquement les identifiants
+     */
+    public function ajax_get_credentials() {
+        // Vérifier le nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'geneapp_auto_credentials')) {
+            wp_send_json_error(array('message' => 'Erreur de sécurité, veuillez rafraîchir la page.'));
+        }
+        
+        // Vérifier les données
+        if (empty($_POST['email']) || empty($_POST['domain'])) {
+            wp_send_json_error(array('message' => 'Email ou domaine manquant.'));
+        }
+        
+        $email = sanitize_email($_POST['email']);
+        $domain = sanitize_text_field($_POST['domain']);
+        
+        // Contacter l'API Cloudflare Worker
+        $response = wp_remote_post('https://partner.genealogie.app/register', array(
+            'body' => array(
+                'email' => $email,
+                'domain' => $domain,
+                'source' => 'wordpress_plugin',
+            ),
+            'timeout' => 15,
+        ));
+        
+        if (is_wp_error($response)) {
+            wp_send_json_error(array('message' => 'Erreur de connexion : ' . $response->get_error_message()));
+        }
+        
+        $body = json_decode(wp_remote_retrieve_body($response), true);
+        
+        if (wp_remote_retrieve_response_code($response) !== 200 && wp_remote_retrieve_response_code($response) !== 201) {
+            $error_message = isset($body['message']) ? $body['message'] : 'Erreur inconnue lors de la récupération des identifiants.';
+            wp_send_json_error(array('message' => $error_message));
+        }
+        
+        // Succès, retourner les identifiants
+        wp_send_json_success(array(
+            'partner_id' => $body['partner_id'],
+            'partner_secret' => $body['partner_secret'],
+        ));
     }
     
     /**
@@ -97,9 +145,9 @@ class GeneApp_WP_Admin {
      * Callback pour l'ID partenaire
      */
     public function partner_id_callback() {
-        $value = get_option('geneapp_partner_id', 'geneapp-wp.fr');
+        $value = get_option('geneapp_partner_id', '');
         echo '<input type="text" id="geneapp_partner_id" name="geneapp_partner_id" value="' . esc_attr($value) . '" class="regular-text">';
-        echo '<p class="description">L\'identifiant fourni par GeneApp.</p>';
+        echo '<p class="description">L\'identifiant fourni par GeneApp ou obtenu automatiquement ci-dessus.</p>';
     }
     
     /**
@@ -107,8 +155,41 @@ class GeneApp_WP_Admin {
      */
     public function partner_secret_callback() {
         $value = get_option('geneapp_partner_secret', '');
+        echo '<div style="position: relative; display: inline-block;">';
         echo '<input type="password" id="geneapp_partner_secret" name="geneapp_partner_secret" value="' . esc_attr($value) . '" class="regular-text">';
-        echo '<p class="description">La clé secrète fournie par GeneApp.</p>';
+        echo '<button type="button" id="geneapp_toggle_secret" class="button button-secondary" style="position: absolute; right: 2px; top: 1px; height: 30px; border: none; background: transparent; cursor: pointer;" aria-label="Afficher/masquer la clé">';
+        echo '<span class="dashicons dashicons-visibility"></span>';
+        echo '</button>';
+        echo '</div>';
+        echo '<p class="description">La clé secrète fournie par GeneApp ou obtenue automatiquement ci-dessus.</p>';
+        
+        // Script JavaScript pour gérer l'affichage/masquage
+        ?>
+        <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleButton = document.getElementById('geneapp_toggle_secret');
+            const secretInput = document.getElementById('geneapp_partner_secret');
+            const toggleIcon = toggleButton.querySelector('.dashicons');
+            
+            toggleButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Changer le type de l'input
+                const type = secretInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                secretInput.setAttribute('type', type);
+                
+                // Changer l'icône
+                if (type === 'text') {
+                    toggleIcon.classList.remove('dashicons-visibility');
+                    toggleIcon.classList.add('dashicons-hidden');
+                } else {
+                    toggleIcon.classList.remove('dashicons-hidden');
+                    toggleIcon.classList.add('dashicons-visibility');
+                }
+            });
+        });
+        </script>
+        <?php
     }
     
     /**
@@ -130,6 +211,76 @@ class GeneApp_WP_Admin {
         ?>
         <div class="wrap">
             <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+            
+            <div class="card" style="max-width: 800px; margin-bottom: 20px; padding: 15px; background: #fff; border: 1px solid #ccd0d4; border-radius: 4px; box-shadow: 0 1px 1px rgba(0,0,0,.04);">
+                <h2>Récupération automatique des identifiants</h2>
+                <p>Vous pouvez obtenir automatiquement vos identifiants de partenaire depuis le service GeneApp :</p>
+                
+                <form id="geneapp-auto-credentials-form">
+                    <?php wp_nonce_field('geneapp_auto_credentials', 'geneapp_credentials_nonce'); ?>
+                    
+                    <p>
+                        <label for="geneapp_email">Email associé à votre compte :</label><br>
+                        <input type="email" id="geneapp_email" placeholder="votre@email.com" class="regular-text" required>
+                    </p>
+                    
+                    <div id="geneapp-auth-response" style="display: none; margin: 15px 0; padding: 10px; border-left: 4px solid #46b450; background: #f7f7f7;"></div>
+                    
+                    <p>
+                        <button type="submit" class="button button-primary" id="geneapp-get-credentials">
+                            <span class="dashicons dashicons-update" style="margin-top: 4px;"></span> 
+                            Récupérer mes identifiants
+                        </button>
+                        <span class="spinner" id="geneapp-spinner" style="float: none; margin-top: 4px;"></span>
+                    </p>
+                </form>
+                
+                <script>
+                jQuery(document).ready(function($) {
+                    $('#geneapp-auto-credentials-form').on('submit', function(e) {
+                        e.preventDefault();
+                        
+                        $('#geneapp-spinner').addClass('is-active');
+                        $('#geneapp-get-credentials').prop('disabled', true);
+                        
+                        $.ajax({
+                            url: ajaxurl,
+                            type: 'POST',
+                            data: {
+                                action: 'geneapp_get_credentials',
+                                nonce: $('#geneapp_credentials_nonce').val(),
+                                email: $('#geneapp_email').val(),
+                                domain: window.location.hostname
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    $('#geneapp_partner_id').val(response.data.partner_id);
+                                    $('#geneapp_partner_secret').val(response.data.partner_secret);
+                                    
+                                    $('#geneapp-auth-response').html('<p><strong>Identifiants récupérés avec succès!</strong> Les champs ont été préremplis, veuillez enregistrer les paramètres.</p>')
+                                        .css('border-left-color', '#46b450')
+                                        .show();
+                                } else {
+                                    $('#geneapp-auth-response').html('<p><strong>Erreur :</strong> ' + response.data.message + '</p>')
+                                        .css('border-left-color', '#dc3232')
+                                        .show();
+                                }
+                            },
+                            error: function() {
+                                $('#geneapp-auth-response').html('<p><strong>Erreur :</strong> Impossible de contacter le serveur. Veuillez réessayer plus tard ou contacter le support.</p>')
+                                    .css('border-left-color', '#dc3232')
+                                    .show();
+                            },
+                            complete: function() {
+                                $('#geneapp-spinner').removeClass('is-active');
+                                $('#geneapp-get-credentials').prop('disabled', false);
+                            }
+                        });
+                    });
+                });
+                </script>
+            </div>
+            
             <form action="options.php" method="post">
                 <?php
                 settings_fields('geneapp_wp_settings');

@@ -2,8 +2,8 @@
 /**
  * Plugin Name: GeneApp WP
  * Description: Intégration de GeneApp avec template de page dédié
- * Version: 1.7.0
- * Author: Frank Bracq
+ * Version: 1.7.1
+ * Author: geneapp-wp.fr
  */
 
 // Empêcher l'accès direct au fichier
@@ -59,8 +59,15 @@ class GeneApp_WP {
         ], $atts);
 
         // Infos partenaire (idéalement à stocker dans les options)
-        $partner_id = get_option('geneapp_partner_id', 'geneapp-wp.fr');
-        $partner_secret = get_option('geneapp_partner_secret', 'cle_secrete_geneapp');
+        $partner_id = get_option('geneapp_partner_id', '');
+$partner_secret = get_option('geneapp_partner_secret', '');
+
+// Vérifier si les informations de partenaire sont configurées
+if (empty($partner_id) || empty($partner_secret)) {
+    return '<p>Veuillez configurer les informations de partenaire GeneApp dans les <a href="' . 
+           admin_url('options-general.php?page=geneapp-wp-settings') . 
+           '">paramètres du plugin</a>.</p>';
+}
 
         // Génération de la signature
         $signature = geneapp_wp_generate_signature($partner_id, $user_data, $partner_secret);
