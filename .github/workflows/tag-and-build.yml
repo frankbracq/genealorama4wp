@@ -1,0 +1,63 @@
+name: Auto-tag & Build Plugin Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  tag_and_build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Extract plugin version
+        id: extract_version
+        run: |
+          version=$(grep -E "^\\s*\\*\\s*Version:\\s*[0-9]+\\.[0-9]+\\.[0-9]+" geneapp-wp.php | sed -E 's/.*Version:\\s*([0-9.]+).*/\1/')
+          echo "Version extraite : $version"
+          echo "version=$version" >> $GITHUB_OUTPUT
+
+      - name: Check if tag already exists
+        id: check_tag
+        run: |
+          git fetch --tags
+          if git rev-parse "v${{ steps.extract_version.outputs.version }}" >/dev/null 2>&1; then
+            echo "Tag existe déjà"
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Nouveau tag"
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create tag and push
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git tag v${{ steps.extract_version.outputs.version }}
+          git push origin v${{ steps.extract_version.outputs.version }}
+
+      - name: Re-checkout code at tag
+        run: |
+          git fetch --tags
+          git checkout tags/v${{ steps.extract_version.outputs.version }}
+
+      - name: Package plugin into geneapp-wp.zip
+        run: |
+          mkdir package
+          rsync -av --progress ./ ./package/geneapp-wp --exclude .git --exclude .github --exclude geneapp-wp.zip
+          cd package
+          zip -r ../geneapp-wp.zip geneapp-wp
+
+      - name: Create GitHub Release & Upload ZIP
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.extract_version.outputs.version }}
+          name: v${{ steps.extract_version.outputs.version }}
+          files: geneapp-wp.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
