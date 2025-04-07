@@ -150,7 +150,6 @@ class GeneApp_WP_Admin {
     public function partner_id_callback() {
         $value = get_option('geneapp_partner_id', '');
         echo '<input type="text" id="geneapp_partner_id" name="geneapp_partner_id" value="' . esc_attr($value) . '" class="regular-text">';
-        echo '<p class="description">L\'identifiant fourni par GeneApp ou obtenu automatiquement ci-dessus.</p>';
     }
     
     /**
@@ -164,7 +163,6 @@ class GeneApp_WP_Admin {
         echo '<span class="dashicons dashicons-visibility"></span>';
         echo '</button>';
         echo '</div>';
-        echo '<p class="description">La clé secrète fournie par GeneApp ou obtenue automatiquement ci-dessus.</p>';
         
         // Script JavaScript pour gérer l'affichage/masquage
         ?>
@@ -211,91 +209,230 @@ class GeneApp_WP_Admin {
         if (!current_user_can('manage_options')) {
             return;
         }
+        
+        // Vérifier si les identifiants sont déjà configurés
+        $has_credentials = !empty(get_option('geneapp_partner_id')) && !empty(get_option('geneapp_partner_secret'));
         ?>
         <div class="wrap">
             <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
             
             <div class="card" style="max-width: 800px; margin-bottom: 20px; padding: 15px; background: #fff; border: 1px solid #ccd0d4; border-radius: 4px; box-shadow: 0 1px 1px rgba(0,0,0,.04);">
-                <h2>Récupération automatique des identifiants</h2>
-                <p>Vous pouvez obtenir automatiquement vos identifiants de partenaire depuis le service GeneApp :</p>
+                <h2>Configuration des identifiants GeneApp</h2>
                 
-                <form id="geneapp-auto-credentials-form">
-                    <?php wp_nonce_field('geneapp_auto_credentials', 'geneapp_credentials_nonce'); ?>
+                <?php
+                // Afficher un message de succès si les paramètres viennent d'être mis à jour
+                if (isset($_GET['settings-updated']) && $_GET['settings-updated'] == 'true') {
+                    echo '<div class="notice notice-success is-dismissible"><p><strong>Succès :</strong> Les paramètres ont été enregistrés avec succès.</p></div>';
+                }
+                ?>
+                
+                <form action="options.php" method="post" id="geneapp-settings-form">
+                    <?php
+                    settings_fields('geneapp_wp_settings');
+                    ?>
                     
-                    <p>
-                        <label for="geneapp_email">Email associé à votre compte :</label><br>
-                        <input type="email" id="geneapp_email" placeholder="votre@email.com" class="regular-text" required>
-                    </p>
-                    
-                    <div id="geneapp-auth-response" style="display: none; margin: 15px 0; padding: 10px; border-left: 4px solid #46b450; background: #f7f7f7;"></div>
-                    
-                    <p>
-                        <button type="submit" class="button button-primary" id="geneapp-get-credentials">
-                            <span class="dashicons dashicons-update" style="margin-top: 4px;"></span> 
-                            Récupérer mes identifiants
-                        </button>
-                        <span class="spinner" id="geneapp-spinner" style="float: none; margin-top: 4px;"></span>
-                    </p>
+                    <div class="geneapp-integration-container">
+                        <div class="geneapp-credentials-section">
+                            <!-- Section récupération automatique -->
+                            <div class="geneapp-auto-credentials">
+                                <p>
+                                    <label for="geneapp_email"><strong>Email associé à votre compte :</strong></label><br>
+                                    <input type="email" id="geneapp_email" placeholder="votre@email.com" class="regular-text" required>
+                                    <?php wp_nonce_field('geneapp_auto_credentials', 'geneapp_credentials_nonce'); ?>
+                                </p>
+                                
+                                <div id="geneapp-auth-response" style="display: none; margin: 15px 0; padding: 10px; border-left: 4px solid #46b450; background: #f7f7f7;"></div>
+                            </div>
+                            
+                            <!-- Section paramètres -->
+                            <table class="form-table" role="presentation">
+                                <tr>
+                                    <th scope="row"><label for="geneapp_partner_id">Identifiant Partenaire</label></th>
+                                    <td><?php $this->partner_id_callback(); ?></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><label for="geneapp_partner_secret">Clé Secrète</label></th>
+                                    <td><?php $this->partner_secret_callback(); ?></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Hauteur automatique</th>
+                                    <td><?php $this->auto_height_callback(); ?></td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Boutons d'action -->
+                            <div class="geneapp-action-buttons" style="margin-top: 20px;">
+                                <?php if (isset($_GET['settings-updated']) && $_GET['settings-updated'] == 'true'): ?>
+                                    <!-- État juste après l'enregistrement -->
+                                    <button type="button" class="button button-primary" id="geneapp-get-credentials">
+                                        <span class="dashicons dashicons-update" style="margin-top: 4px;"></span> 
+                                        Récupérer mes identifiants
+                                    </button>
+                                    <input type="submit" name="submit" id="geneapp-save-settings" class="button" value="Paramètres enregistrés" disabled>
+                                <?php else: ?>
+                                    <!-- État normal -->
+                                    <button type="button" class="button <?php echo $has_credentials ? 'button-secondary' : 'button-primary'; ?>" id="geneapp-get-credentials">
+                                        <span class="dashicons dashicons-update" style="margin-top: 4px;"></span> 
+                                        Récupérer mes identifiants
+                                    </button>
+                                    <input type="submit" name="submit" id="geneapp-save-settings" class="button button-primary" value="Enregistrer les paramètres" <?php echo !$has_credentials ? 'disabled' : ''; ?>>
+                                <?php endif; ?>
+                                
+                                <span class="spinner" id="geneapp-spinner" style="float: none; margin-top: 4px;"></span>
+                            </div>
+                        </div>
+                    </div>
                 </form>
                 
                 <script>
                 jQuery(document).ready(function($) {
-                    $('#geneapp-auto-credentials-form').on('submit', function(e) {
+                    // État initial basé sur la présence d'identifiants
+                    let hasCredentials = <?php echo $has_credentials ? 'true' : 'false'; ?>;
+                    let isLoading = false;
+                    
+                    // Fonction pour mettre à jour l'état des boutons
+                    function updateButtonsState() {
+                        // Si chargement en cours, désactiver les deux boutons
+                        if (isLoading) {
+                            $('#geneapp-get-credentials').prop('disabled', true);
+                            $('#geneapp-save-settings').prop('disabled', true);
+                            return;
+                        }
+                        
+                        // Si des identifiants existent déjà, activer l'enregistrement et configurer la récupération
+                        if (hasCredentials) {
+                            $('#geneapp-save-settings').prop('disabled', false);
+                            $('#geneapp-get-credentials').removeClass('button-primary').addClass('button-secondary');
+                        } else {
+                            // Sinon, activer la récupération et désactiver l'enregistrement
+                            $('#geneapp-save-settings').prop('disabled', true);
+                            $('#geneapp-get-credentials').removeClass('button-secondary').addClass('button-primary');
+                        }
+                    }
+                    
+                    // Au chargement initial, mettre à jour l'état des boutons
+                    updateButtonsState();
+                    
+                    // Gérer le clic sur le bouton de récupération
+                    $('#geneapp-get-credentials').on('click', function(e) {
                         e.preventDefault();
                         
-                        $('#geneapp-spinner').addClass('is-active');
-                        $('#geneapp-get-credentials').prop('disabled', true);
+                        // Validation de l'email
+                        const email = $('#geneapp_email').val();
+                        if (!email) {
+                            $('#geneapp-auth-response')
+                                .html('<p><strong>Erreur :</strong> Veuillez saisir votre email.</p>')
+                                .css('border-left-color', '#dc3232')
+                                .show();
+                            return;
+                        }
                         
+                        // Mise à jour de l'état de chargement
+                        isLoading = true;
+                        $('#geneapp-spinner').addClass('is-active');
+                        updateButtonsState();
+                        
+                        // Appel AJAX
                         $.ajax({
                             url: ajaxurl,
                             type: 'POST',
                             data: {
                                 action: 'geneapp_get_credentials',
                                 nonce: $('#geneapp_credentials_nonce').val(),
-                                email: $('#geneapp_email').val(),
+                                email: email,
                                 domain: window.location.hostname
                             },
                             success: function(response) {
                                 if (response.success) {
+                                    // Remplir les champs avec les identifiants récupérés
                                     $('#geneapp_partner_id').val(response.data.partner_id);
                                     $('#geneapp_partner_secret').val(response.data.partner_secret);
                                     
-                                    $('#geneapp-auth-response').html('<p><strong>Identifiants récupérés avec succès!</strong> Enregistrement automatique en cours...</p>')
+                                    // Mettre à jour le message de réussite
+                                    $('#geneapp-auth-response')
+                                        .html('<p><strong>Identifiants récupérés avec succès!</strong> Vous pouvez maintenant enregistrer les paramètres.</p>')
                                         .css('border-left-color', '#46b450')
                                         .show();
                                     
-                                    // Soumettre automatiquement le formulaire principal
-                                    setTimeout(function() {
-                                        $('form[action="options.php"]').submit();
-                                    }, 1500);
+                                    // Mettre à jour l'état (identifiants disponibles)
+                                    hasCredentials = true;
                                 } else {
-                                    $('#geneapp-auth-response').html('<p><strong>Erreur :</strong> ' + response.data.message + '</p>')
+                                    // Afficher le message d'erreur
+                                    $('#geneapp-auth-response')
+                                        .html('<p><strong>Erreur :</strong> ' + response.data.message + '</p>')
                                         .css('border-left-color', '#dc3232')
                                         .show();
                                 }
                             },
                             error: function() {
-                                $('#geneapp-auth-response').html('<p><strong>Erreur :</strong> Impossible de contacter le serveur. Veuillez réessayer plus tard ou contacter le support.</p>')
+                                $('#geneapp-auth-response')
+                                    .html('<p><strong>Erreur :</strong> Impossible de contacter le serveur. Veuillez réessayer plus tard ou contacter le support.</p>')
                                     .css('border-left-color', '#dc3232')
                                     .show();
                             },
                             complete: function() {
+                                // Réinitialiser l'état de chargement
+                                isLoading = false;
                                 $('#geneapp-spinner').removeClass('is-active');
-                                $('#geneapp-get-credentials').prop('disabled', false);
+                                updateButtonsState();
                             }
                         });
                     });
+                    
+                    // Détecter si on vient de sauvegarder des paramètres (via URL)
+                    if (window.location.search.includes('settings-updated=true')) {
+                        // Le bouton d'enregistrement est désactivé (déjà fait en PHP)
+                        // Activer et mettre en évidence le bouton de récupération
+                        $('#geneapp-get-credentials')
+                            .prop('disabled', false)
+                            .removeClass('button-secondary')
+                            .addClass('button-primary');
+                        
+                        // Revenir à un état où l'enregistrement est possible après 3 secondes
+                        setTimeout(function() {
+                            // Réactiver le bouton d'enregistrement
+                            $('#geneapp-save-settings')
+                                .val('Enregistrer les paramètres')
+                                .prop('disabled', false);
+                            
+                            // Mettre le bouton de récupération en secondaire
+                            $('#geneapp-get-credentials')
+                                .removeClass('button-primary')
+                                .addClass('button-secondary');
+                            
+                            // Mettre à jour l'état global des boutons
+                            updateButtonsState();
+                        }, 3000);
+                    }
+                    
+                    // Lors de la soumission du formulaire
+                    $('#geneapp-settings-form').on('submit', function() {
+                        $('#geneapp-save-settings').val('Enregistrement...');
+                    });
+                    
+                    // Détection de changements dans les champs d'identifiants
+                    $('#geneapp_partner_id, #geneapp_partner_secret').on('input', function() {
+                        const hasId = $('#geneapp_partner_id').val().trim() !== '';
+                        const hasSecret = $('#geneapp_partner_secret').val().trim() !== '';
+                        
+                        // Mettre à jour l'état des identifiants
+                        hasCredentials = hasId && hasSecret;
+                        updateButtonsState();
+                    });
                 });
                 </script>
+                
+                <style>
+                .geneapp-integration-container {
+                    margin-top: 15px;
+                }
+                .geneapp-action-buttons {
+                    display: flex;
+                    gap: 10px;
+                    align-items: center;
+                }
+                </style>
             </div>
-            
-            <form action="options.php" method="post">
-                <?php
-                settings_fields('geneapp_wp_settings');
-                do_settings_sections('geneapp-wp-settings');
-                submit_button('Enregistrer les paramètres');
-                ?>
-            </form>
             
             <hr>
             
