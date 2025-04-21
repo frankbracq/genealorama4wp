@@ -114,7 +114,7 @@ class GeneApp_WP_Admin {
         
         add_settings_field(
             'geneapp_partner_id',
-            'Identifiant Partenaire',
+            'Votre identifiant partenaire',
             array($this, 'partner_id_callback'),
             'geneapp-wp-settings',
             'geneapp_wp_main_section'
@@ -122,7 +122,7 @@ class GeneApp_WP_Admin {
         
         add_settings_field(
             'geneapp_partner_secret',
-            'Clé Secrète',
+            'Votre clé secrète',
             array($this, 'partner_secret_callback'),
             'geneapp-wp-settings',
             'geneapp_wp_main_section'

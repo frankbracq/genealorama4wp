@@ -1,7 +1,12 @@
 <?php
 /**
- * Fonctions de génération de signature pour GeneApp WP
+ * Fonctions de signature pour GeneApp WP
  */
+
+// Empêcher l'accès direct au fichier
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 /**
  * Génère une signature HMAC SHA-256 pour l'authentification
@@ -12,11 +17,22 @@
  * @return string Signature en hexadécimal
  */
 function geneapp_wp_generate_signature($partner_id, $user_data, $partner_secret) {
-    // Chaîne à signer (identique au middleware)
-    $stringToSign = "partner_id={$partner_id}&uid={$user_data['id']}&email={$user_data['email']}&ts={$user_data['timestamp']}";
+    // Assurez-vous que l'email est raw (non encodé pour l'URL)
+    $email = $user_data['email'];
+    
+    // Chaîne à signer (format exact attendu par le Worker)
+    $stringToSign = "partner_id={$partner_id}&uid={$user_data['id']}&email={$email}&ts={$user_data['timestamp']}";
+    
+    // Log pour debug (à retirer en production)
+    error_log("String to sign: " . $stringToSign);
     
     // Calcul de la signature HMAC
-    return hash_hmac('sha256', $stringToSign, $partner_secret);
+    $signature = hash_hmac('sha256', $stringToSign, $partner_secret);
+    
+    // Log pour debug (à retirer en production)
+    error_log("Generated signature: " . $signature);
+    
+    return $signature;
 }
 
 /**
@@ -35,19 +51,22 @@ function geneapp_generate_signed_url($base_url, $partner_id, $partner_secret, $u
     // Utilisation de la fonction principale pour la cohérence
     $user_data = [
         'id' => $uid,
-        'email' => $email,
+        'email' => $email, // Email non encodé pour la signature
         'timestamp' => $ts
     ];
+    
+    // Générer la signature avec l'email non encodé
     $sig = geneapp_wp_generate_signature($partner_id, $user_data, $partner_secret);
 
     // Construction de l'URL avec les paramètres signés
-    $params = http_build_query([
+    // Important: encoder manuellement l'email pour l'URL après avoir calculé la signature
+    $params = [
         'partner_id' => $partner_id,
         'uid' => $uid,
-        'email' => $email,
+        'email' => urlencode($email), // Encodage pour l'URL
         'ts' => $ts,
         'sig' => $sig
-    ]);
+    ];
 
-    return "$base_url?$params";
+    return $base_url . '?' . http_build_query($params);
 }

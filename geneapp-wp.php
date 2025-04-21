@@ -38,114 +38,120 @@ class GeneApp_WP {
         register_activation_hook(__FILE__, array($this, 'plugin_activation'));
     }
     
-    /**
-     * Callback du shortcode pour l'intégration de GeneApp
-     */
-    public function geneapp_shortcode($atts) {
-        if (!is_user_logged_in()) {
-            return '<p>Veuillez vous connecter pour accéder à cette fonctionnalité.</p>';
+/**
+ * Callback du shortcode pour l'intégration de GeneApp
+ */
+public function geneapp_shortcode($atts) {
+    if (!is_user_logged_in()) {
+        return '<p>Veuillez vous connecter pour accéder à cette fonctionnalité.</p>';
+    }
+
+    $current_user = wp_get_current_user();
+    $user_data = [
+        'id'        => $current_user->ID,
+        'email'     => $current_user->user_email, // Email non encodé pour la signature
+        'timestamp' => time(),
+    ];
+
+    $atts = shortcode_atts([
+        'src'         => 'https://familystory.live/iframe-entry/',
+        'width'       => '100%',
+        'height'      => 'auto',
+        'auto_height' => 'true',
+        'fullscreen'  => 'false',
+    ], $atts);
+
+    // Récupérer les infos partenaire depuis les options
+    $partner_id = get_option('geneapp_partner_id', '');
+    $partner_secret = get_option('geneapp_partner_secret', '');
+
+    // Vérifier si les informations de partenaire sont configurées
+    if (empty($partner_id) || empty($partner_secret)) {
+        if (current_user_can('manage_options')) {
+            return '<p>Veuillez configurer les informations de partenaire GeneApp dans les <a href="' . 
+                admin_url('options-general.php?page=geneapp-wp-settings') . 
+                '">paramètres du plugin</a>.</p>';
+        } else {
+            return '<p>Cette fonctionnalité n\'est pas encore configurée. Veuillez contacter l\'administrateur du site.</p>';
         }
+    }
 
-        $current_user = wp_get_current_user();
-        $user_data = [
-            'id'        => $current_user->ID,
-            'email'     => $current_user->user_email,
-            'timestamp' => time(),
-        ];
+    // Génération de la signature avec l'email non encodé
+    $signature = geneapp_wp_generate_signature($partner_id, $user_data, $partner_secret);
 
-        $atts = shortcode_atts([
-            'src'         => 'https://genealogie.app/wp-embed/',
-            'width'       => '100%',
-            'height'      => 'auto',
-            'auto_height' => 'true',
-            'fullscreen'  => 'false',
-        ], $atts);
-
-        // Récupérer les infos partenaire depuis les options
-        $partner_id = get_option('geneapp_partner_id', '');
-        $partner_secret = get_option('geneapp_partner_secret', '');
-
-        // Vérifier si les informations de partenaire sont configurées
-        if (empty($partner_id) || empty($partner_secret)) {
-            if (current_user_can('manage_options')) {
-                return '<p>Veuillez configurer les informations de partenaire GeneApp dans les <a href="' . 
-                    admin_url('options-general.php?page=geneapp-wp-settings') . 
-                    '">paramètres du plugin</a>.</p>';
-            } else {
-                return '<p>Cette fonctionnalité n\'est pas encore configurée. Veuillez contacter l\'administrateur du site.</p>';
-            }
-        }
-
-        // Génération de la signature
-        $signature = geneapp_wp_generate_signature($partner_id, $user_data, $partner_secret);
-
-        // Construction de l'URL
-        $iframe_url = add_query_arg([
-            'partner_id' => $partner_id,
-            'uid'        => $user_data['id'],
-            'email'      => urlencode($user_data['email']),
-            'ts'         => $user_data['timestamp'],
-            'sig'        => $signature,
-        ], $atts['src']);
-
-        $iframe_id = 'wpGeneappIframe_' . uniqid();
-        
-        // Classe CSS pour le conteneur
-        $container_class = 'geneapp-container';
-        if ($atts['fullscreen'] === 'true') {
-            $container_class .= ' geneapp-fullscreen';
-        }
-
-        ob_start();
-            ?>
-            <div class="<?php echo esc_attr($container_class); ?>">
-                <iframe id="<?php echo esc_attr($iframe_id); ?>"
-                        src="<?php echo esc_url($iframe_url); ?>"
-                        style="width: 100%; min-height: 700px; border: none; display: block;"
-                        loading="lazy"
-                        allowfullscreen></iframe>
-            </div>
-
-            <script>
-              document.addEventListener("DOMContentLoaded", () => {
-                const iframe = document.getElementById('<?php echo esc_js($iframe_id); ?>');
-                if (iframe) {
-                  // Hauteur initiale basée sur la fenêtre
-                  function setInitialHeight() {
-                    const windowHeight = window.innerHeight;
-                    const offsetTop = iframe.getBoundingClientRect().top;
-                    const newHeight = windowHeight - offsetTop - 40;
-                    iframe.style.height = Math.max(700, newHeight) + "px";
-                  }
-                  
-                  setInitialHeight();
-                  
-                  <?php if ($atts['auto_height'] === 'true') : ?>
-                  // Écouter les messages de l'iframe
-                  window.addEventListener("message", (event) => {
-                    if (!event.origin.includes("genealogie.app")) return;
-                    
-                    // Gestion de la hauteur automatique
-                    if (event.data.geneappHeight && !isNaN(event.data.geneappHeight)) {
-                      iframe.style.height = event.data.geneappHeight + "px";
-                    }
-                    
-                    // Gestion du bouton d'accueil - retour à la page d'accueil WordPress
-                    if (event.data.action === 'returnToHome' && event.data.source === 'geneafan') {
-                      console.log('Navigation: retour à l\'accueil demandé par GeneaFan');
-                      window.location.href = '<?php echo esc_js(home_url()); ?>';
-                    }
-                  });
-                  <?php endif; ?>
-                  
-                  window.addEventListener("resize", setInitialHeight);
-                }
-              });
-            </script>
-            <?php
-            return ob_get_clean();
-        }
+    // *** CORRECTION IMPORTANTE ***
+    // Construction de l'URL manuellement pour un contrôle précis
+    $params = [
+        'partner_id' => $partner_id,
+        'uid'        => $user_data['id'],
+        'email'      => urlencode($user_data['email']), // Important: encoder APRÈS le calcul de la signature
+        'ts'         => $user_data['timestamp'],
+        'sig'        => $signature,
+    ];
     
+    // Assemblage de l'URL
+    $iframe_url = $atts['src'];
+    $iframe_url .= (strpos($iframe_url, '?') === false) ? '?' : '&';
+    $iframe_url .= http_build_query($params);
+
+    $iframe_id = 'wpGeneappIframe_' . uniqid();
+    
+    // Classe CSS pour le conteneur
+    $container_class = 'geneapp-container';
+    if ($atts['fullscreen'] === 'true') {
+        $container_class .= ' geneapp-fullscreen';
+    }
+
+    ob_start();
+    ?>
+    <div class="<?php echo esc_attr($container_class); ?>">
+        <iframe id="<?php echo esc_attr($iframe_id); ?>"
+                src="<?php echo esc_url($iframe_url); ?>"
+                style="width: 100%; min-height: 700px; border: none; display: block;"
+                loading="lazy"
+                allowfullscreen></iframe>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const iframe = document.getElementById('<?php echo esc_js($iframe_id); ?>');
+        if (iframe) {
+          // Hauteur initiale basée sur la fenêtre
+          function setInitialHeight() {
+            const windowHeight = window.innerHeight;
+            const offsetTop = iframe.getBoundingClientRect().top;
+            const newHeight = windowHeight - offsetTop - 40;
+            iframe.style.height = Math.max(700, newHeight) + "px";
+          }
+          
+          setInitialHeight();
+          
+          <?php if ($atts['auto_height'] === 'true') : ?>
+          // Écouter les messages de l'iframe
+          window.addEventListener("message", (event) => {
+            // Vérification de l'origine (sécurité)
+            if (!event.origin.includes("familystory.live") && !event.origin.includes("genealogie.app")) return;
+            
+            // Gestion de la hauteur automatique
+            if (event.data.geneappHeight && !isNaN(event.data.geneappHeight)) {
+              iframe.style.height = event.data.geneappHeight + "px";
+            }
+            
+            // Gestion du bouton d'accueil - retour à la page d'accueil WordPress
+            if (event.data.action === 'returnToHome' && event.data.source === 'geneafan') {
+              console.log('Navigation: retour à l\'accueil demandé par GeneaFan');
+              window.location.href = '<?php echo esc_js(home_url()); ?>';
+            }
+          });
+          <?php endif; ?>
+          
+          window.addEventListener("resize", setInitialHeight);
+        }
+      });
+    </script>
+    <?php
+    return ob_get_clean();
+}	
     /**
      * Enregistrer les styles CSS du plugin
      */
@@ -420,11 +426,20 @@ if (!defined('ABSPATH')) {
  * @return string Signature générée
  */
 function geneapp_wp_generate_signature(\$partner_id, \$user_data, \$partner_secret) {
-    // Construire la chaîne à signer
-    \$string_to_sign = \$partner_id . \$user_data['id'] . \$user_data['email'] . \$user_data['timestamp'];
+    // Assurez-vous que l'email est raw (non encodé pour l'URL)
+    \$email = \$user_data['email'];
     
-    // Générer la signature avec HMAC SHA256
-    \$signature = hash_hmac('sha256', \$string_to_sign, \$partner_secret);
+    // Chaîne à signer (format exact attendu par le Worker)
+    \$stringToSign = "partner_id={\$partner_id}&uid={\$user_data['id']}&email={\$email}&ts={\$user_data['timestamp']}";
+    
+    // Log pour debug (à retirer en production)
+    error_log("String to sign: " . \$stringToSign);
+    
+    // Calcul de la signature HMAC
+    \$signature = hash_hmac('sha256', \$stringToSign, \$partner_secret);
+    
+    // Log pour debug (à retirer en production)
+    error_log("Generated signature: " . \$signature);
     
     return \$signature;
 }
