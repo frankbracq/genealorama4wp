@@ -17,20 +17,14 @@ if (!defined('ABSPATH')) {
  * @return string Signature en hexadécimal
  */
 function geneapp_wp_generate_signature($partner_id, $user_data, $partner_secret) {
-    // Assurez-vous que l'email est raw (non encodé pour l'URL)
+    // Utiliser l'email non encodé pour la signature
     $email = $user_data['email'];
     
     // Chaîne à signer (format exact attendu par le Worker)
     $stringToSign = "partner_id={$partner_id}&uid={$user_data['id']}&email={$email}&ts={$user_data['timestamp']}";
     
-    // Log pour debug (à retirer en production)
-    error_log("String to sign: " . $stringToSign);
-    
     // Calcul de la signature HMAC
     $signature = hash_hmac('sha256', $stringToSign, $partner_secret);
-    
-    // Log pour debug (à retirer en production)
-    error_log("Generated signature: " . $signature);
     
     return $signature;
 }
