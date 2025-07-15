@@ -1,8 +1,8 @@
 # WP GeneApp
 
-[![Latest Release](https://img.shields.io/github/v/release/frankbracq/wp-geneapp?label=Latest%20Release)](https://github.com/frankbracq/wp-geneapp/releases/latest)
-[![Build](https://github.com/frankbracq/wp-geneapp/actions/workflows/release.yml/badge.svg)](https://github.com/frankbracq/wp-geneapp/actions)
-[![Download Plugin](https://img.shields.io/github/downloads/frankbracq/wp-geneapp/total?label=Download%20Plugin)](https://github.com/frankbracq/wp-geneapp/releases/latest)
+[![Latest Release](https://img.shields.io/github/v/release/frankbracq/geneapp-wp?label=Latest%20Release)](https://github.com/frankbracq/geneapp-wp/releases/latest)
+[![Build](https://github.com/frankbracq/geneapp-wp/actions/workflows/tag-and-build.yml/badge.svg)](https://github.com/frankbracq/geneapp-wp/actions)
+[![Download Plugin](https://img.shields.io/github/downloads/frankbracq/geneapp-wp/total?label=Download%20Plugin)](https://github.com/frankbracq/geneapp-wp/releases/latest)
 
 **WP GeneApp** est un plugin WordPress conçu pour intégrer l’application [genealogie.app](https://genealogie.app) dans n’importe quel site WordPress, sous forme d’iframe interactive et sécurisée.
 
@@ -32,7 +32,7 @@ Idéal pour les portails généalogiques, les membres de clubs d'histoire famili
 
 ## 🚀 Installation
 
-1. [Téléchargez la dernière version ici](https://github.com/frankbracq/wp-geneapp/releases/latest)
+1. [Téléchargez la dernière version ici](https://github.com/frankbracq/geneapp-wp/releases/latest)
 2. Téléversez le fichier `.zip` dans `Extensions > Ajouter > Téléverser une extension`
 3. Activez le plugin
 4. Configurez votre clé HMAC dans **Réglages > WP GeneApp**
