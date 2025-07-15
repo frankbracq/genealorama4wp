@@ -2,7 +2,7 @@
 /**
  * Plugin Name: GeneApp WP
  * Description: Intégration de GeneApp avec template de page dédié
- * Version: 1.8.0
+ * Version: 1.8.2
  * Author: geneapp-wp.fr
  */
 
@@ -54,7 +54,7 @@ public function geneapp_shortcode($atts) {
     ];
 
     $atts = shortcode_atts([
-        'src'         => 'https://familystory.live/iframe-entry/',
+        'src'         => 'https://genealogie.app/iframe-entry/',
         'width'       => '100%',
         'height'      => 'auto',
         'auto_height' => 'true',
@@ -79,12 +79,13 @@ public function geneapp_shortcode($atts) {
     // Génération de la signature avec l'email non encodé
     $signature = geneapp_wp_generate_signature($partner_id, $user_data, $partner_secret);
 
-    // *** CORRECTION IMPORTANTE ***
-    // Construction de l'URL manuellement pour un contrôle précis
+    // *** CORRECTION DU DOUBLE ENCODAGE ***
+    // http_build_query encode automatiquement les valeurs, donc on ne doit pas
+    // encoder l'email manuellement avant
     $params = [
         'partner_id' => $partner_id,
         'uid'        => $user_data['id'],
-        'email'      => urlencode($user_data['email']), // Important: encoder APRÈS le calcul de la signature
+        'email'      => $user_data['email'], // NE PAS encoder ici, http_build_query le fera
         'ts'         => $user_data['timestamp'],
         'sig'        => $signature,
     ];
