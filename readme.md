@@ -4,7 +4,7 @@
 [![Build](https://github.com/frankbracq/geneapp-wp/actions/workflows/tag-and-build.yml/badge.svg)](https://github.com/frankbracq/geneapp-wp/actions)
 [![Download Plugin](https://img.shields.io/github/downloads/frankbracq/geneapp-wp/total?label=Download%20Plugin)](https://github.com/frankbracq/geneapp-wp/releases/latest)
 
-**GeneApp-WP** est un plugin WordPress conçu pour intégrer l'application GeneApp dans n'importe quel site WordPress, sous forme d'iframe interactive et sécurisée. Une démo de cette intégration est disponible sur [geneapp-wp.fr](https://geneapp.fr)
+**GeneApp-WP** est un plugin WordPress conçu pour intégrer l'application GeneApp dans n'importe quel site WordPress, sous forme d'iframe interactive et sécurisée. Une démo de cette intégration est disponible sur [geneapp-wp.fr](https://geneapp-wp.fr)
 
 Il permet aux utilisateurs connectés de **consulter, visualiser ou interagir avec les résultats d'une recherche généalogique**, tout en conservant les droits d'accès sécurisés.
 
