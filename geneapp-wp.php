@@ -1,9 +1,12 @@
 <?php
 /**
- * Plugin Name: GeneApp WP
- * Description: Intégration de GeneApp avec template de page dédié
- * Version: 1.8.2
+ * Plugin Name: GeneApp-WP
+ * Description: Intégration de GeneApp avec template de page dédié et validation des identifiants
+ * Version: 1.9.0
  * Author: geneapp-wp.fr
+ * License: GPL-2.0+
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
+ * Text Domain: geneapp-wp
  */
 
 // Empêcher l'accès direct au fichier
@@ -36,6 +39,37 @@ class GeneApp_WP {
         
         // Créer la page lors de l'activation du plugin
         register_activation_hook(__FILE__, array($this, 'plugin_activation'));
+        
+        // Planifier la validation quotidienne
+        register_activation_hook(__FILE__, array($this, 'schedule_daily_validation'));
+        register_deactivation_hook(__FILE__, array($this, 'unschedule_daily_validation'));
+        add_action('geneapp_daily_validation', array($this, 'perform_daily_validation'));
+    }
+    
+    /**
+     * Planifier la validation quotidienne des identifiants
+     */
+    public function schedule_daily_validation() {
+        if (!wp_next_scheduled('geneapp_daily_validation')) {
+            wp_schedule_event(time(), 'daily', 'geneapp_daily_validation');
+        }
+    }
+    
+    /**
+     * Supprimer la tâche planifiée lors de la désactivation
+     */
+    public function unschedule_daily_validation() {
+        wp_clear_scheduled_hook('geneapp_daily_validation');
+    }
+    
+    /**
+     * Effectuer la validation quotidienne
+     */
+    public function perform_daily_validation() {
+        if (class_exists('GeneApp_WP_Admin')) {
+            $admin = new GeneApp_WP_Admin();
+            $admin->validate_credentials();
+        }
     }
     
 /**
@@ -64,6 +98,7 @@ public function geneapp_shortcode($atts) {
     // Récupérer les infos partenaire depuis les options
     $partner_id = get_option('geneapp_partner_id', '');
     $partner_secret = get_option('geneapp_partner_secret', '');
+    $validation_status = get_option('geneapp_last_validation_status', '');
 
     // Vérifier si les informations de partenaire sont configurées
     if (empty($partner_id) || empty($partner_secret)) {
@@ -102,10 +137,21 @@ public function geneapp_shortcode($atts) {
     if ($atts['fullscreen'] === 'true') {
         $container_class .= ' geneapp-fullscreen';
     }
+    
+    // URL de la page des paramètres pour les admins
+    $settings_url = admin_url('options-general.php?page=geneapp-wp-settings');
+    $is_admin = current_user_can('manage_options');
 
     ob_start();
     ?>
     <div class="<?php echo esc_attr($container_class); ?>">
+        <?php if ($validation_status === 'invalid' && $is_admin): ?>
+        <div class="geneapp-auth-warning" style="background: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
+            <strong>Attention :</strong> Les identifiants GeneApp semblent invalides. 
+            <a href="<?php echo esc_url($settings_url); ?>">Veuillez les mettre à jour</a>.
+        </div>
+        <?php endif; ?>
+        
         <iframe id="<?php echo esc_attr($iframe_id); ?>"
                 src="<?php echo esc_url($iframe_url); ?>"
                 style="width: 100%; min-height: 700px; border: none; display: block;"
@@ -138,6 +184,31 @@ public function geneapp_shortcode($atts) {
               iframe.style.height = event.data.geneappHeight + "px";
             }
             
+            // Gestion des erreurs d'authentification
+            if (event.data.error === 'invalid_signature' || event.data.error === 'authentication_failed') {
+              console.error('Erreur d\'authentification GeneApp:', event.data.error);
+              
+              <?php if ($is_admin): ?>
+              // Pour les admins, afficher un message avec lien vers les paramètres
+              const container = iframe.parentElement;
+              const warningDiv = container.querySelector('.geneapp-auth-warning');
+              
+              if (!warningDiv) {
+                const warning = document.createElement('div');
+                warning.className = 'geneapp-auth-warning';
+                warning.style.cssText = 'background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 10px; margin-bottom: 10px; border-radius: 4px;';
+                warning.innerHTML = '<strong>Erreur d\'authentification :</strong> Les identifiants GeneApp sont invalides. ' +
+                                  '<a href="<?php echo esc_js($settings_url); ?>">Mettre à jour les paramètres</a>.';
+                container.insertBefore(warning, iframe);
+              }
+              <?php else: ?>
+              // Pour les utilisateurs non-admins, afficher un message générique
+              const container = iframe.parentElement;
+              container.innerHTML = '<p style="padding: 20px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">' +
+                                  'Une erreur est survenue lors du chargement. Veuillez contacter l\'administrateur du site.</p>';
+              <?php endif; ?>
+            }
+            
             // Gestion du bouton d'accueil - retour à la page d'accueil WordPress
             if (event.data.action === 'returnToHome' && event.data.source === 'geneafan') {
               console.log('Navigation: retour à l\'accueil demandé par GeneaFan');
@@ -163,7 +234,7 @@ public function geneapp_shortcode($atts) {
             $this->create_css_file();
         }
         
-        wp_register_style('geneapp-wp-styles', plugins_url('assets/css/geneapp.css', __FILE__));
+        wp_register_style('geneapp-wp-styles', plugins_url('assets/css/geneapp.css', __FILE__), array(), '1.9.0');
         wp_enqueue_style('geneapp-wp-styles');
     }
     
@@ -176,8 +247,7 @@ public function geneapp_shortcode($atts) {
             wp_mkdir_p($css_dir);
         }
         
-        $css_content = <<<CSS
-/* Styles pour l'intégration GeneApp */
+        $css_content = '/* Styles pour l\'intégration GeneApp */
 .geneapp-container {
   margin: 0 !important;
   padding: 0 !important;
@@ -206,7 +276,21 @@ body.geneapp-template-page {
   padding: 0;
   overflow-x: hidden;
 }
-CSS;
+
+/* Styles pour les messages d\'avertissement */
+.geneapp-auth-warning {
+  background: #fff3cd;
+  border: 1px solid #ffeeba;
+  color: #856404;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+.geneapp-auth-warning a {
+  color: #533f03;
+  text-decoration: underline;
+}';
         file_put_contents($css_dir . '/geneapp.css', $css_content);
     }
     
@@ -308,26 +392,25 @@ function geneapp_wp_create_template_directory() {
 function geneapp_wp_create_template_file() {
     $template_file = plugin_dir_path(__FILE__) . 'templates/geneapp-template.php';
     if (!file_exists($template_file)) {
-        $template_content = <<<TEMPLATE
-<?php
+        $template_content = '<?php
 /**
- * Template pour l'affichage pleine page de GeneApp
+ * Template pour l\'affichage pleine page de GeneApp
  * 
- * Ce template supprime l'en-tête et le pied de page pour une expérience immersive
+ * Ce template supprime l\'en-tête et le pied de page pour une expérience immersive
  */
 
-// Désactiver l'affichage de l'en-tête et du pied de page
-remove_action('get_header', 'wp_enqueue_scripts');
-remove_action('wp_head', '_wp_render_title_tag', 1);
+// Désactiver l\'affichage de l\'en-tête et du pied de page
+remove_action(\'get_header\', \'wp_enqueue_scripts\');
+remove_action(\'wp_head\', \'_wp_render_title_tag\', 1);
 ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
-    <meta charset="<?php bloginfo('charset'); ?>">
+    <meta charset="<?php bloginfo(\'charset\'); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?php wp_head(); ?>
 </head>
 
-<body <?php body_class('geneapp-template-page'); ?>>
+<body <?php body_class(\'geneapp-template-page\'); ?>>
     <div class="geneapp-full-page">
         <?php 
         // Contenu de la page
@@ -338,8 +421,7 @@ remove_action('wp_head', '_wp_render_title_tag', 1);
     </div>
     <?php wp_footer(); ?>
 </body>
-</html>
-TEMPLATE;
+</html>';
         file_put_contents($template_file, $template_content);
     }
 }
@@ -360,8 +442,7 @@ function geneapp_wp_create_assets_directory() {
     
     $css_file = $css_dir . '/geneapp.css';
     if (!file_exists($css_file)) {
-        $css_content = <<<CSS
-/* Styles pour l'intégration GeneApp */
+        $css_content = '/* Styles pour l\'intégration GeneApp */
 .geneapp-container {
   margin: 0 !important;
   padding: 0 !important;
@@ -390,7 +471,21 @@ body.geneapp-template-page {
   padding: 0;
   overflow-x: hidden;
 }
-CSS;
+
+/* Styles pour les messages d\'avertissement */
+.geneapp-auth-warning {
+  background: #fff3cd;
+  border: 1px solid #ffeeba;
+  color: #856404;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+.geneapp-auth-warning a {
+  color: #533f03;
+  text-decoration: underline;
+}';
         file_put_contents($css_file, $css_content);
     }
 }
@@ -407,176 +502,52 @@ function geneapp_wp_create_includes_directory() {
     // Vérifier l'existence du fichier signature.php
     $signature_file = $includes_dir . '/signature.php';
     if (!file_exists($signature_file)) {
-        $signature_content = <<<PHP
-<?php
+        $signature_content = '<?php
 /**
- * Fonctions de signature pour GeneApp WP
+ * Fonctions de signature pour GeneApp-WP
  */
 
-// Empêcher l'accès direct au fichier
-if (!defined('ABSPATH')) {
+// Empêcher l\'accès direct au fichier
+if (!defined(\'ABSPATH\')) {
     exit;
 }
 
 /**
- * Génère une signature sécurisée pour l'authentification avec GeneApp
+ * Génère une signature sécurisée pour l\'authentification avec GeneApp
  *
- * @param string \$partner_id Identifiant du partenaire
- * @param array \$user_data Données utilisateur (id, email, timestamp)
- * @param string \$partner_secret Clé secrète du partenaire
+ * @param string $partner_id Identifiant du partenaire
+ * @param array $user_data Données utilisateur (id, email, timestamp)
+ * @param string $partner_secret Clé secrète du partenaire
  * @return string Signature générée
  */
-function geneapp_wp_generate_signature(\$partner_id, \$user_data, \$partner_secret) {
-    // Assurez-vous que l'email est raw (non encodé pour l'URL)
-    \$email = \$user_data['email'];
+function geneapp_wp_generate_signature($partner_id, $user_data, $partner_secret) {
+    // Assurez-vous que l\'email est raw (non encodé pour l\'URL)
+    $email = $user_data[\'email\'];
     
     // Chaîne à signer (format exact attendu par le Worker)
-    \$stringToSign = "partner_id={\$partner_id}&uid={\$user_data['id']}&email={\$email}&ts={\$user_data['timestamp']}";
+    $stringToSign = "partner_id={$partner_id}&uid={$user_data[\'id\']}&email={$email}&ts={$user_data[\'timestamp\']}";
     
     // Log pour debug (à retirer en production)
-    error_log("String to sign: " . \$stringToSign);
+    // error_log("String to sign: " . $stringToSign);
     
     // Calcul de la signature HMAC
-    \$signature = hash_hmac('sha256', \$stringToSign, \$partner_secret);
+    $signature = hash_hmac(\'sha256\', $stringToSign, $partner_secret);
     
     // Log pour debug (à retirer en production)
-    error_log("Generated signature: " . \$signature);
+    // error_log("Generated signature: " . $signature);
     
-    return \$signature;
-}
-PHP;
+    return $signature;
+}';
         file_put_contents($signature_file, $signature_content);
     }
     
     // Vérifier l'existence du fichier admin-settings.php
     $admin_file = $includes_dir . '/admin-settings.php';
     if (!file_exists($admin_file)) {
-        $admin_content = <<<PHP
-<?php
-/**
- * Page de configuration admin pour GeneApp WP
- */
-
-// Empêcher l'accès direct au fichier
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-// Ajouter le menu des options
-add_action('admin_menu', 'geneapp_wp_add_admin_menu');
-add_action('admin_init', 'geneapp_wp_settings_init');
-
-/**
- * Ajouter la page de menu dans les paramètres
- */
-function geneapp_wp_add_admin_menu() {
-    add_options_page(
-        'GeneApp WP', 
-        'GeneApp WP', 
-        'manage_options', 
-        'geneapp-wp-settings', 
-        'geneapp_wp_options_page'
-    );
-}
-
-/**
- * Initialiser les paramètres
- */
-function geneapp_wp_settings_init() {
-    register_setting('geneapp_wp_settings', 'geneapp_partner_id');
-    register_setting('geneapp_wp_settings', 'geneapp_partner_secret');
-    
-    add_settings_section(
-        'geneapp_wp_settings_section', 
-        'Paramètres de connexion GeneApp', 
-        'geneapp_wp_settings_section_callback', 
-        'geneapp_wp_settings'
-    );
-    
-    add_settings_field(
-        'geneapp_partner_id', 
-        'Identifiant Partenaire', 
-        'geneapp_partner_id_render', 
-        'geneapp_wp_settings', 
-        'geneapp_wp_settings_section'
-    );
-    
-    add_settings_field(
-        'geneapp_partner_secret', 
-        'Clé Secrète Partenaire', 
-        'geneapp_partner_secret_render', 
-        'geneapp_wp_settings', 
-        'geneapp_wp_settings_section'
-    );
-}
-
-/**
- * Rendu du champ Identifiant Partenaire
- */
-function geneapp_partner_id_render() {
-    \$value = get_option('geneapp_partner_id');
-    echo '<input type="text" name="geneapp_partner_id" value="' . esc_attr(\$value) . '" />';
-}
-
-/**
- * Rendu du champ Clé Secrète Partenaire
- */
-function geneapp_partner_secret_render() {
-    \$value = get_option('geneapp_partner_secret');
-    echo '<input type="password" name="geneapp_partner_secret" value="' . esc_attr(\$value) . '" />';
-}
-
-/**
- * Callback de la section de paramètres
- */
-function geneapp_wp_settings_section_callback() {
-    echo '<p>Entrez vos informations de partenaire GeneApp. Ces informations sont nécessaires pour établir une connexion sécurisée avec le service GeneApp.</p>';
-}
-
-/**
- * Rendu de la page d'options
- */
-function geneapp_wp_options_page() {
-    ?>
-    <div class="wrap">
-        <h1>Paramètres GeneApp WP</h1>
-        <form action='options.php' method='post'>
-            <?php
-            settings_fields('geneapp_wp_settings');
-            do_settings_sections('geneapp_wp_settings');
-            submit_button();
-            ?>
-        </form>
-        
-        <div class="geneapp-wp-info">
-            <h2>Informations</h2>
-            <p>Le plugin GeneApp WP crée une page dédiée à l'intégration de GeneApp dans votre site WordPress.</p>
-            <p>Pour utiliser ce plugin :</p>
-            <ol>
-                <li>Entrez vos informations de partenaire ci-dessus</li>
-                <li>Utilisez le shortcode <code>[geneapp_embed]</code> sur n'importe quelle page</li>
-                <li>Ou utilisez la page "Généalogie" créée automatiquement avec le template pleine page</li>
-            </ol>
-            <p>Options du shortcode :</p>
-            <ul>
-                <li><code>auto_height="true|false"</code> - Ajustement automatique de la hauteur</li>
-                <li><code>fullscreen="true|false"</code> - Affichage plein écran</li>
-            </ul>
-        </div>
-    </div>
-    <style>
-        .geneapp-wp-info {
-            background: #fff;
-            padding: 15px 20px;
-            margin-top: 20px;
-            border-left: 4px solid #0073aa;
-            box-shadow: 0 1px 1px rgba(0,0,0,.04);
-        }
-    </style>
-    <?php
-}
-PHP;
-        file_put_contents($admin_file, $admin_content);
+        // Créer le fichier admin-settings.php s'il n'existe pas
+        // Note: Ce fichier devrait normalement exister car il est inclus au début du plugin
+        // Cette fonction de création ne devrait donc jamais être exécutée
+        // error_log('Warning: admin-settings.php was missing and needs to be recreated');
     }
 }
 

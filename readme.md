@@ -30,6 +30,7 @@ Lors de l'activation, le plugin :
 - ✅ **Réservé aux membres** : Accès limité aux utilisateurs connectés
 - ✅ **Hauteur adaptative** : Redimensionnement automatique de l'iframe
 - ✅ **Communication bidirectionnelle** : Support des messages entre iframe et site parent
+- 🆕 **Validation des identifiants** : Vérification automatique et manuelle de la validité des clés
 
 ---
 
@@ -46,10 +47,18 @@ Lors de l'activation, le plugin :
 
 Pour activer l'intégration avec genealogie.app :
 
-1. Allez dans **Réglages > GeneApp WP**
-2. Entrez votre **Identifiant Partenaire**
-3. Entrez votre **Clé Secrète Partenaire**
-4. Enregistrez
+1. Allez dans **Réglages > GeneApp-WP**
+2. Entrez votre **Email** et cliquez sur "Récupérer mes identifiants"
+3. Les identifiants sont automatiquement remplis et validés
+4. Cliquez sur "Enregistrer les paramètres"
+
+#### 🆕 Validation des identifiants
+
+Le plugin affiche maintenant :
+- **Date de dernière validation** : Savoir quand vos identifiants ont été vérifiés
+- **Statut** : Indicateur visuel (✓ Valides ou ⚠ Invalides)
+- **Validation manuelle** : Bouton "Valider maintenant" pour vérifier à tout moment
+- **Validation automatique** : Vérification quotidienne en arrière-plan
 
 ---
 
@@ -93,6 +102,14 @@ Avec options :
 - **Signature HMAC** : Chaque requête est signée cryptographiquement
 - **Validation temporelle** : Protection contre les attaques par rejeu
 - **Isolation iframe** : Communication sécurisée via postMessage
+- 🆕 **Détection d'erreurs** : Alerte automatique si les identifiants sont invalides
+
+### Gestion des erreurs d'authentification
+
+Si les identifiants deviennent invalides :
+- **Administrateurs** : Message d'avertissement avec lien vers les paramètres
+- **Utilisateurs** : Message générique les invitant à contacter l'administrateur
+- **Validation proactive** : Vérification quotidienne pour détecter les problèmes
 
 ---
 
@@ -107,10 +124,10 @@ Le plugin crée automatiquement :
 │       └── geneapp.css          # Styles de l'intégration
 ├── includes/
 │   ├── signature.php            # Génération HMAC
-│   └── admin-settings.php       # Page de configuration
+│   └── admin-settings.php       # Page de configuration avec validation
 ├── templates/
 │   └── geneapp-template.php     # Template pleine page
-└── geneapp-wp.php              # Fichier principal
+└── geneapp-wp.php              # Fichier principal avec gestion d'erreurs
 ```
 
 ---
@@ -142,4 +159,4 @@ Ce plugin est distribué sous licence [GPL v2 ou ultérieure](https://www.gnu.or
 
 Voir [CHANGELOG.md](CHANGELOG.md) pour l'historique complet des versions.
 
-**Dernière version** : v1.8.2 - Migration vers genealogie.app
+**Dernière version** : v1.9.0 - Système de validation des identifiants

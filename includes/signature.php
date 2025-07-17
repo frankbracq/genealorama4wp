@@ -1,6 +1,6 @@
 <?php
 /**
- * Fonctions de signature pour GeneApp WP
+ * Fonctions de signature pour GeneApp-WP
  */
 
 // Empêcher l'accès direct au fichier

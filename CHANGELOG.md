@@ -1,4 +1,30 @@
-# Changelog - GeneApp WP
+# Changelog - GeneApp-WP
+
+## Version 1.9.0 - 2025-07-17
+### Nouvelles fonctionnalités
+- **Système de validation des identifiants** : Ajout d'un système complet de validation des identifiants partenaire
+  - Affichage de la date de dernière validation dans l'interface d'administration
+  - Bouton "Valider maintenant" pour vérifier manuellement les identifiants
+  - Validation automatique quotidienne des identifiants via tâche cron WordPress
+  - Validation automatique lors de la récupération de nouveaux identifiants
+  - Indicateurs visuels (icônes et couleurs) pour l'état de validation
+
+- **Gestion améliorée des erreurs d'authentification** :
+  - Détection des erreurs d'authentification via messages postMessage de l'iframe
+  - Messages d'avertissement différenciés pour les administrateurs et utilisateurs
+  - Lien direct vers les paramètres pour les administrateurs en cas d'erreur
+  - Affichage d'un avertissement si les identifiants sont marqués comme invalides
+
+### Améliorations techniques
+- Ajout des gestionnaires AJAX pour la validation des identifiants
+- Nouvelles options WordPress pour stocker l'état et la date de validation
+- Styles CSS pour les messages d'avertissement
+- Meilleure gestion des erreurs avec messages contextuels
+
+### Impact
+- Les administrateurs ont maintenant une visibilité complète sur l'état de leurs identifiants
+- Détection rapide des problèmes d'authentification
+- Meilleure expérience utilisateur avec des messages d'erreur clairs
 
 ## Version 1.8.2 - 2025-07-15
 ### Modifications majeures

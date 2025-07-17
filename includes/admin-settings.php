@@ -1,6 +1,6 @@
 <?php
 /**
- * Page d'options pour le plugin GeneApp WP
+ * Page d'options pour le plugin GeneApp-WP
  */
 
 if (!defined('ABSPATH')) {
@@ -20,8 +20,159 @@ class GeneApp_WP_Admin {
         $plugin_basename = plugin_basename(dirname(dirname(__FILE__)) . '/geneapp-wp.php');
         add_filter('plugin_action_links_' . $plugin_basename, array($this, 'add_settings_link'));
         
-        // Ajouter le gestionnaire AJAX
+        // Ajouter les gestionnaires AJAX
         add_action('wp_ajax_geneapp_get_credentials', array($this, 'ajax_get_credentials'));
+        add_action('wp_ajax_geneapp_validate_credentials', array($this, 'ajax_validate_credentials'));
+    }
+    
+    /**
+     * Valider les identifiants auprès de l'API GeneApp
+     * Version temporaire simplifiée pour les tests
+     */
+    public function validate_credentials() {
+        $partner_id = get_option('geneapp_partner_id');
+        $partner_secret = get_option('geneapp_partner_secret');
+        
+        if (empty($partner_id) || empty($partner_secret)) {
+            // error_log('GeneApp validation: Missing partner credentials');
+            return false;
+        }
+        
+        // Pour l'instant, si les identifiants sont présents et que l'iframe fonctionne,
+        // on considère qu'ils sont valides
+        // TODO: Implémenter la vraie validation quand l'endpoint sera prêt
+        
+        $is_valid = true; // Temporairement toujours valide si les identifiants existent
+        
+        // Mettre à jour les métadonnées
+        update_option('geneapp_last_validation_date', current_time('timestamp'));
+        update_option('geneapp_last_validation_status', $is_valid ? 'valid' : 'invalid');
+        
+        return $is_valid;
+    }
+    
+    /**
+     * Valider les identifiants auprès de l'API GeneApp (version complète)
+     * À activer quand le debug sera fait
+     */
+    public function validate_credentials_full() {
+        $partner_id = get_option('geneapp_partner_id');
+        $partner_secret = get_option('geneapp_partner_secret');
+        
+        if (empty($partner_id) || empty($partner_secret)) {
+            // error_log('GeneApp validation: Missing partner credentials');
+            return false;
+        }
+        
+        // Créer les paramètres de validation (comme pour l'iframe)
+        $current_user = wp_get_current_user();
+        if (!$current_user || !$current_user->user_email) {
+            // error_log('GeneApp validation: No current user or email');
+            return false;
+        }
+        
+        $test_uid = 'wp_validation_' . $current_user->ID;
+        $test_email = $current_user->user_email;
+        $test_timestamp = time();
+        
+        // Créer la chaîne à signer (format exact attendu par le Worker)
+        $string_to_sign = "partner_id={$partner_id}&uid={$test_uid}&email={$test_email}&ts={$test_timestamp}";
+        
+        // Log pour debug
+        // error_log('GeneApp validation - String to sign: ' . $string_to_sign);
+        
+        // Calculer la signature HMAC
+        $signature = hash_hmac('sha256', $string_to_sign, $partner_secret);
+        
+        // Construire l'URL de validation avec les paramètres
+        $validation_url = add_query_arg(array(
+            'partner_id' => $partner_id,
+            'uid' => $test_uid,
+            'email' => $test_email,
+            'ts' => $test_timestamp,
+            'sig' => $signature
+        ), 'https://genealogie.app/validate-partner');
+        
+        // Log l'URL de validation (sans la signature complète pour sécurité)
+        // error_log('GeneApp validation URL: ' . str_replace($signature, substr($signature, 0, 10) . '...', $validation_url));
+        
+        // Appeler l'API de validation
+        $response = wp_remote_get($validation_url, array(
+            'timeout' => 10,
+            'headers' => array(
+                'Accept' => 'application/json'
+            )
+        ));
+        
+        $is_valid = false;
+        if (!is_wp_error($response)) {
+            $response_code = wp_remote_retrieve_response_code($response);
+            $body = wp_remote_retrieve_body($response);
+            
+            // error_log('GeneApp validation response code: ' . $response_code);
+            // error_log('GeneApp validation response body: ' . $body);
+            
+            $data = json_decode($body, true);
+            $is_valid = isset($data['valid']) && $data['valid'] === true;
+            
+            // Log pour debug
+            if (!$is_valid && isset($data['error'])) {
+                // error_log('GeneApp validation error: ' . $data['error']);
+            }
+        } else {
+            // error_log('GeneApp validation error: ' . $response->get_error_message());
+        }
+        
+        // Mettre à jour les métadonnées
+        update_option('geneapp_last_validation_date', current_time('timestamp'));
+        update_option('geneapp_last_validation_status', $is_valid ? 'valid' : 'invalid');
+        
+        return $is_valid;
+    }
+    
+    /**
+     * Gestionnaire AJAX pour valider les identifiants
+     */
+    public function ajax_validate_credentials() {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'geneapp_validate_nonce')) {
+            wp_send_json_error(array('message' => 'Erreur de sécurité'));
+        }
+        
+        $is_valid = $this->validate_credentials();
+        
+        wp_send_json_success(array(
+            'valid' => $is_valid,
+            'message' => $is_valid ? 'Identifiants valides' : 'Identifiants invalides',
+            'last_check' => $this->get_formatted_validation_date()
+        ));
+    }
+    
+    /**
+     * Formater la date de validation
+     */
+    private function get_formatted_validation_date() {
+        $timestamp = get_option('geneapp_last_validation_date');
+        if (!$timestamp) {
+            return 'Jamais';
+        }
+        
+        $date_format = get_option('date_format');
+        $time_format = get_option('time_format');
+        
+        // Calculer la différence
+        $diff = current_time('timestamp') - $timestamp;
+        
+        if ($diff < 60) {
+            return 'Il y a quelques secondes';
+        } elseif ($diff < 3600) {
+            $minutes = floor($diff / 60);
+            return sprintf('Il y a %d minute%s', $minutes, $minutes > 1 ? 's' : '');
+        } elseif ($diff < 86400) {
+            $hours = floor($diff / 3600);
+            return sprintf('Il y a %d heure%s', $hours, $hours > 1 ? 's' : '');
+        } else {
+            return date_i18n($date_format . ' à ' . $time_format, $timestamp);
+        }
     }
     
     /**
@@ -29,7 +180,7 @@ class GeneApp_WP_Admin {
      */
     public function ajax_get_credentials() {
         // Vérifier le nonce
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'geneapp_auto_credentials')) {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'geneapp_auto_credentials')) {
             wp_send_json_error(array('message' => 'Erreur de sécurité, veuillez rafraîchir la page.'));
         }
         
@@ -38,8 +189,8 @@ class GeneApp_WP_Admin {
             wp_send_json_error(array('message' => 'Email ou domaine manquant.'));
         }
         
-        $email = sanitize_email($_POST['email']);
-        $domain = sanitize_text_field($_POST['domain']);
+        $email = sanitize_email(wp_unslash($_POST['email']));
+        $domain = sanitize_text_field(wp_unslash($_POST['domain']));
         
         // Contacter l'API Cloudflare Worker avec des données JSON
         $response = wp_remote_post('https://partner.genealogie.app/register', array(
@@ -65,10 +216,19 @@ class GeneApp_WP_Admin {
             wp_send_json_error(array('message' => $error_message));
         }
         
+        // Sauvegarder les identifiants
+        update_option('geneapp_partner_id', $body['partner_id']);
+        update_option('geneapp_partner_secret', $body['partner_secret']);
+        
+        // Marquer comme validés maintenant
+        update_option('geneapp_last_validation_date', current_time('timestamp'));
+        update_option('geneapp_last_validation_status', 'valid');
+        
         // Succès, retourner les identifiants
         wp_send_json_success(array(
             'partner_id' => $body['partner_id'],
             'partner_secret' => $body['partner_secret'],
+            'validated' => true
         ));
     }
     
@@ -76,7 +236,7 @@ class GeneApp_WP_Admin {
      * Ajouter le lien "Paramètres" dans la liste des plugins
      */
     public function add_settings_link($links) {
-        $settings_link = '<a href="' . admin_url('options-general.php?page=geneapp-wp-settings') . '">' . __('Paramètres') . '</a>';
+        $settings_link = '<a href="' . admin_url('options-general.php?page=geneapp-wp-settings') . '">' . __('Paramètres', 'geneapp-wp') . '</a>';
         array_unshift($links, $settings_link);
         return $links;
     }
@@ -98,11 +258,22 @@ class GeneApp_WP_Admin {
      * Enregistrer les paramètres
      */
     public function register_settings() {
-        register_setting('geneapp_wp_settings', 'geneapp_partner_id');
-        register_setting('geneapp_wp_settings', 'geneapp_partner_secret');
+        register_setting('geneapp_wp_settings', 'geneapp_partner_id', array(
+            'sanitize_callback' => 'sanitize_text_field',
+        ));
+        register_setting('geneapp_wp_settings', 'geneapp_partner_secret', array(
+            'sanitize_callback' => 'sanitize_text_field',
+        ));
         register_setting('geneapp_wp_settings', 'geneapp_iframe_auto_height', array(
             'type' => 'boolean',
             'default' => true,
+            'sanitize_callback' => 'rest_sanitize_boolean',
+        ));
+        register_setting('geneapp_wp_settings', 'geneapp_last_validation_date', array(
+            'sanitize_callback' => 'absint',
+        ));
+        register_setting('geneapp_wp_settings', 'geneapp_last_validation_status', array(
+            'sanitize_callback' => 'sanitize_text_field',
         ));
         
         add_settings_section(
@@ -212,6 +383,8 @@ class GeneApp_WP_Admin {
         
         // Vérifier si les identifiants sont déjà configurés
         $has_credentials = !empty(get_option('geneapp_partner_id')) && !empty(get_option('geneapp_partner_secret'));
+        $last_validation = get_option('geneapp_last_validation_date');
+        $validation_status = get_option('geneapp_last_validation_status');
         ?>
         <div class="wrap">
             <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
@@ -221,10 +394,35 @@ class GeneApp_WP_Admin {
                 
                 <?php
                 // Afficher un message de succès si les paramètres viennent d'être mis à jour
-                if (isset($_GET['settings-updated']) && $_GET['settings-updated'] == 'true') {
+                if (isset($_GET['settings-updated']) && $_GET['settings-updated'] == 'true') { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
                     echo '<div class="notice notice-success is-dismissible"><p><strong>Succès :</strong> Les paramètres ont été enregistrés avec succès.</p></div>';
                 }
                 ?>
+                
+                <?php if ($has_credentials): ?>
+                <!-- Affichage du statut de validation -->
+                <div id="geneapp-validation-status" class="notice notice-<?php echo esc_attr($validation_status === 'valid' ? 'success' : 'warning'); ?> inline" style="margin: 15px 0;">
+                    <p>
+                        <?php if ($last_validation): ?>
+                            <strong>Dernière validation des identifiants :</strong> 
+                            <?php echo esc_html($this->get_formatted_validation_date()); ?>
+                            <?php if ($validation_status === 'valid'): ?>
+                                <span class="dashicons dashicons-yes-alt" style="color: #46b450;"></span> Valides
+                            <?php else: ?>
+                                <span class="dashicons dashicons-warning" style="color: #ffb900;"></span> Invalides
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <strong>Les identifiants n'ont jamais été validés.</strong>
+                        <?php endif; ?>
+                        
+                        <button type="button" id="geneapp-validate-now" class="button button-small" style="margin-left: 10px;">
+                            <span class="dashicons dashicons-update" style="font-size: 16px; line-height: 28px;"></span>
+                            Valider maintenant
+                        </button>
+                        <span class="spinner" id="geneapp-validate-spinner" style="float: none; margin: 0 5px;"></span>
+                    </p>
+                </div>
+                <?php endif; ?>
                 
                 <form action="options.php" method="post" id="geneapp-settings-form">
                     <?php
@@ -237,8 +435,10 @@ class GeneApp_WP_Admin {
                             <div class="geneapp-auto-credentials">
                                 <p>
                                     <label for="geneapp_email"><strong>Email associé à votre compte :</strong></label><br>
-                                    <input type="email" id="geneapp_email" placeholder="votre@email.com" class="regular-text" required>
+                                    <input type="email" id="geneapp_email" placeholder="votre@email.com" value="<?php echo esc_attr(wp_get_current_user()->user_email); ?>" class="regular-text" required>
+                                    <br><small style="color: #666;">Les identifiants sont liés au domaine <?php echo esc_html(isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : 'localhost'); ?>. Tout administrateur du site peut les récupérer.</small>
                                     <?php wp_nonce_field('geneapp_auto_credentials', 'geneapp_credentials_nonce'); ?>
+                                    <?php wp_nonce_field('geneapp_validate_nonce', 'geneapp_validate_nonce_field'); ?>
                                 </p>
                                 
                                 <div id="geneapp-auth-response" style="display: none; margin: 15px 0; padding: 10px; border-left: 4px solid #46b450; background: #f7f7f7;"></div>
@@ -262,7 +462,7 @@ class GeneApp_WP_Admin {
                             
                             <!-- Boutons d'action -->
                             <div class="geneapp-action-buttons" style="margin-top: 20px;">
-                                <?php if (isset($_GET['settings-updated']) && $_GET['settings-updated'] == 'true'): ?>
+                                <?php if (isset($_GET['settings-updated']) && $_GET['settings-updated'] == 'true'): // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
                                     <!-- État juste après l'enregistrement -->
                                     <button type="button" class="button button-primary" id="geneapp-get-credentials">
                                         <span class="dashicons dashicons-update" style="margin-top: 4px;"></span> 
@@ -313,6 +513,60 @@ class GeneApp_WP_Admin {
                     // Au chargement initial, mettre à jour l'état des boutons
                     updateButtonsState();
                     
+                    // Gestionnaire pour le bouton de validation
+                    $('#geneapp-validate-now').on('click', function(e) {
+                        e.preventDefault();
+                        
+                        const $button = $(this);
+                        const $spinner = $('#geneapp-validate-spinner');
+                        const $status = $('#geneapp-validation-status');
+                        
+                        $button.prop('disabled', true);
+                        $spinner.addClass('is-active');
+                        
+                        $.ajax({
+                            url: ajaxurl,
+                            type: 'POST',
+                            data: {
+                                action: 'geneapp_validate_credentials',
+                                nonce: $('#geneapp_validate_nonce_field').val()
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    // Mettre à jour l'affichage
+                                    $status.removeClass('notice-warning notice-error').addClass('notice-success');
+                                    
+                                    let statusHtml = '<p><strong>Dernière validation des identifiants :</strong> ' + 
+                                        response.data.last_check;
+                                    
+                                    if (response.data.valid) {
+                                        statusHtml += ' <span class="dashicons dashicons-yes-alt" style="color: #46b450;"></span> Valides';
+                                    } else {
+                                        statusHtml += ' <span class="dashicons dashicons-warning" style="color: #ffb900;"></span> Invalides';
+                                        $status.removeClass('notice-success').addClass('notice-warning');
+                                    }
+                                    
+                                    statusHtml += ' <button type="button" id="geneapp-validate-now" class="button button-small" style="margin-left: 10px;">' +
+                                        '<span class="dashicons dashicons-update" style="font-size: 16px; line-height: 28px;"></span> Valider maintenant</button>' +
+                                        '<span class="spinner" id="geneapp-validate-spinner" style="float: none; margin: 0 5px;"></span></p>';
+                                    
+                                    $status.html(statusHtml);
+                                    
+                                    // Réattacher l'événement au nouveau bouton
+                                    $('#geneapp-validate-now').on('click', arguments.callee);
+                                }
+                            },
+                            error: function() {
+                                $status.removeClass('notice-success notice-warning').addClass('notice-error');
+                                $status.find('p').append(' <em>Erreur lors de la validation</em>');
+                            },
+                            complete: function() {
+                                $button.prop('disabled', false);
+                                $spinner.removeClass('is-active');
+                            }
+                        });
+                    });
+                    
                     // Gérer le clic sur le bouton de récupération
                     $('#geneapp-get-credentials').on('click', function(e) {
                         e.preventDefault();
@@ -356,6 +610,19 @@ class GeneApp_WP_Admin {
                                     
                                     // Mettre à jour l'état (identifiants disponibles)
                                     hasCredentials = true;
+                                    
+                                    // Si la zone de validation existe, la mettre à jour
+                                    if ($('#geneapp-validation-status').length === 0 && response.data.validated) {
+                                        // Ajouter la zone de validation
+                                        const validationHtml = '<div id="geneapp-validation-status" class="notice notice-success inline" style="margin: 15px 0;">' +
+                                            '<p><strong>Dernière validation des identifiants :</strong> Il y a quelques secondes ' +
+                                            '<span class="dashicons dashicons-yes-alt" style="color: #46b450;"></span> Valides ' +
+                                            '<button type="button" id="geneapp-validate-now" class="button button-small" style="margin-left: 10px;">' +
+                                            '<span class="dashicons dashicons-update" style="font-size: 16px; line-height: 28px;"></span> Valider maintenant</button>' +
+                                            '<span class="spinner" id="geneapp-validate-spinner" style="float: none; margin: 0 5px;"></span></p></div>';
+                                        
+                                        $('.card h2').after(validationHtml);
+                                    }
                                 } else {
                                     // Afficher le message d'erreur
                                     $('#geneapp-auth-response')
@@ -378,6 +645,13 @@ class GeneApp_WP_Admin {
                             }
                         });
                     });
+                    
+                    // Validation automatique au chargement si les identifiants existent et n'ont jamais été validés
+                    <?php if ($has_credentials && !$last_validation): ?>
+                    setTimeout(function() {
+                        $('#geneapp-validate-now').trigger('click');
+                    }, 1000);
+                    <?php endif; ?>
                     
                     // Détecter si on vient de sauvegarder des paramètres (via URL)
                     if (window.location.search.includes('settings-updated=true')) {

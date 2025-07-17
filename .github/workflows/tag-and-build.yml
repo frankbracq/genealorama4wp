@@ -54,7 +54,30 @@ jobs:
       - name: Package plugin into geneapp-wp.zip
         run: |
           mkdir package
-          rsync -av --progress ./ ./package/geneapp-wp --exclude .git --exclude .github --exclude geneapp-wp.zip
+          rsync -av --progress ./ ./package/geneapp-wp --exclude .git --exclude .github --exclude geneapp-wp.zip --exclude readme.txt
+          
+          # Convertir readme.md en readme.txt au format WordPress
+          cat > ./package/geneapp-wp/readme.txt << EOF
+          === GeneApp-WP ===
+          Contributors: fbracq
+          Tags: genealogy, iframe, integration, family tree, geneapp
+          Requires at least: 5.0
+          Tested up to: 6.7
+          Stable tag: ${{ steps.extract_version.outputs.version }}
+          Requires PHP: 7.2
+          License: GPLv2 or later
+          License URI: https://www.gnu.org/licenses/gpl-2.0.html
+          
+          Intégration sécurisée de GeneApp dans WordPress avec authentification et page dédiée automatique.
+          
+          EOF
+          
+          # Ajouter le contenu du readme.md
+          echo "" >> ./package/geneapp-wp/readme.txt
+          echo "== Description ==" >> ./package/geneapp-wp/readme.txt
+          echo "" >> ./package/geneapp-wp/readme.txt
+          tail -n +12 readme.md >> ./package/geneapp-wp/readme.txt
+          
           cd package
           zip -r ../geneapp-wp.zip geneapp-wp
 
