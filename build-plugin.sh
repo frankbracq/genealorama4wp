@@ -30,7 +30,7 @@ cat > "$BUILD_DIR/$PLUGIN_NAME/readme.txt" << EOF
 Contributors: fbracq
 Tags: genealogy, iframe, integration, family tree, geneapp
 Requires at least: 5.0
-Tested up to: 6.7
+Tested up to: 6.8
 Stable tag: $VERSION
 Requires PHP: 7.2
 License: GPLv2 or later
