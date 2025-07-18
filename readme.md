@@ -159,4 +159,4 @@ Ce plugin est distribué sous licence [GPL v2 ou ultérieure](https://www.gnu.or
 
 Voir [CHANGELOG.md](CHANGELOG.md) pour l'historique complet des versions.
 
-**Dernière version** : v1.9.0 - Système de validation des identifiants
+**Dernière version** : v1.9.1 - Interface d'administration moderne et corrections techniques

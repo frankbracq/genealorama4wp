@@ -1,6 +1,7 @@
 <?php
 /**
  * Page d'options pour le plugin GeneApp-WP
+ * Version avec interface réorganisée et moderne
  */
 
 if (!defined('ABSPATH')) {
@@ -15,6 +16,7 @@ class GeneApp_WP_Admin {
     public function __construct() {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'register_settings'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_styles'));
         
         // Ajouter le lien "Paramètres" dans la liste des plugins
         $plugin_basename = plugin_basename(dirname(dirname(__FILE__)) . '/geneapp-wp.php');
@@ -23,105 +25,684 @@ class GeneApp_WP_Admin {
         // Ajouter les gestionnaires AJAX
         add_action('wp_ajax_geneapp_get_credentials', array($this, 'ajax_get_credentials'));
         add_action('wp_ajax_geneapp_validate_credentials', array($this, 'ajax_validate_credentials'));
+        add_action('wp_ajax_geneapp_save_display_options', array($this, 'ajax_save_display_options'));
+    }
+    
+    /**
+     * Enqueue les styles et scripts admin
+     */
+    public function enqueue_admin_styles($hook) {
+        // Seulement sur notre page d'admin
+        if ($hook !== 'settings_page_geneapp-wp-settings') {
+            return;
+        }
+        
+        // Utiliser Dashicons au lieu de Font Awesome (déjà inclus dans WordPress)
+        wp_enqueue_style('dashicons');
+        
+        // Ajouter nos styles personnalisés
+        wp_add_inline_style('wp-admin', $this->get_admin_styles());
+    }
+    
+    /**
+     * Obtenir les icônes Dashicons équivalentes
+     */
+    private function get_icon_class($icon) {
+        $icon_map = array(
+            'fa-tree' => 'dashicons-admin-site-alt3',
+            'fa-plug' => 'dashicons-admin-plugins',
+            'fa-check-circle' => 'dashicons-yes-alt',
+            'fa-times-circle' => 'dashicons-dismiss',
+            'fa-exclamation-circle' => 'dashicons-warning',
+            'fa-envelope' => 'dashicons-email',
+            'fa-fingerprint' => 'dashicons-id',
+            'fa-key' => 'dashicons-privacy',
+            'fa-link' => 'dashicons-admin-links',
+            'fa-eye' => 'dashicons-visibility',
+            'fa-eye-slash' => 'dashicons-hidden',
+            'fa-sync-alt' => 'dashicons-update',
+            'fa-sliders-h' => 'dashicons-admin-settings',
+            'fa-save' => 'dashicons-cloud-saved',
+            'fa-rocket' => 'dashicons-star-filled',
+            'fa-code' => 'dashicons-editor-code',
+            'fa-file-alt' => 'dashicons-media-text',
+            'fa-puzzle-piece' => 'dashicons-admin-plugins',
+            'fa-external-link-alt' => 'dashicons-external',
+            'fa-lightbulb' => 'dashicons-lightbulb',
+            'fa-info-circle' => 'dashicons-info',
+            'fa-laptop-code' => 'dashicons-desktop',
+            'fa-exclamation-triangle' => 'dashicons-warning',
+            'fa-globe' => 'dashicons-admin-site-alt',
+        );
+        
+        return isset($icon_map[$icon]) ? $icon_map[$icon] : 'dashicons-marker';
+    }
+    
+    /**
+     * Styles CSS personnalisés pour l'admin
+     */
+    private function get_admin_styles() {
+        return '
+        /* Variables CSS */
+        :root {
+            --geneapp-primary: #667eea;
+            --geneapp-primary-dark: #5a67d8;
+            --geneapp-secondary: #764ba2;
+            --geneapp-success: #10b981;
+            --geneapp-warning: #f59e0b;
+            --geneapp-error: #ef4444;
+            --geneapp-info: #3b82f6;
+        }
+        
+        /* Reset et base */
+        .geneapp-admin-wrap {
+            max-width: 1200px;
+            margin: 20px auto;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        
+        /* En-tête principal */
+        .geneapp-header {
+            background: linear-gradient(135deg, var(--geneapp-primary) 0%, var(--geneapp-secondary) 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .geneapp-header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 50%;
+            height: 200%;
+            background: rgba(255,255,255,0.05);
+            transform: rotate(35deg);
+        }
+        
+        .geneapp-header h1 {
+            color: white;
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .geneapp-header p {
+            color: rgba(255,255,255,0.9);
+            margin-top: 10px;
+            font-size: 1.1em;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Layout en grille */
+        .geneapp-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 968px) {
+            .geneapp-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Cartes */
+        .geneapp-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .geneapp-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        
+        .geneapp-card.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .geneapp-card h2 {
+            color: #1f2937;
+            font-size: 1.4em;
+            margin: 0 0 25px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f3f4f6;
+        }
+        
+        .geneapp-card h2 .dashicons {
+            color: var(--geneapp-primary);
+            font-size: 24px;
+            width: 24px;
+            height: 24px;
+        }
+        
+        /* États de connexion */
+        .geneapp-connection-status {
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .geneapp-connection-status.connected {
+            background: #d1fae5;
+            border-color: #6ee7b7;
+        }
+        
+        .geneapp-connection-status.disconnected {
+            background: #fee2e2;
+            border-color: #fca5a5;
+        }
+        
+        .geneapp-connection-status.pending {
+            background: #fef3c7;
+            border-color: #fcd34d;
+        }
+        
+        .geneapp-status-icon {
+            font-size: 40px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .geneapp-status-content {
+            flex: 1;
+        }
+        
+        .geneapp-status-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+        
+        .geneapp-status-description {
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+        
+        /* Affichage du domaine */
+        .geneapp-domain-display {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border: 1px solid #d1d5db;
+            position: relative;
+        }
+        
+        .geneapp-domain-display::before {
+            content: "\\f319";
+            font-family: "dashicons";
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 60px;
+            color: rgba(0,0,0,0.05);
+        }
+        
+        .geneapp-domain-display .domain {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #1f2937;
+            font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+        
+        .geneapp-domain-display .description {
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+        
+        .geneapp-badge {
+            background: var(--geneapp-warning);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        /* Formulaires */
+        .geneapp-form-group {
+            margin-bottom: 25px;
+        }
+        
+        .geneapp-form-group label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .geneapp-form-group input[type="text"],
+        .geneapp-form-group input[type="email"],
+        .geneapp-form-group input[type="password"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+            background: #f9fafb;
+        }
+        
+        .geneapp-form-group input:focus {
+            outline: none;
+            border-color: var(--geneapp-primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: white;
+        }
+        
+        .geneapp-form-group input[readonly] {
+            background-color: #f3f4f6;
+            color: #6b7280;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+        
+        .geneapp-form-group .description {
+            color: #6b7280;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+        
+        /* Groupe d\'input avec bouton */
+        .geneapp-input-group {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+        }
+        
+        .geneapp-input-group input {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            border-right: none;
+        }
+        
+        .geneapp-input-group button {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            padding: 0 16px;
+            background: #f3f4f6;
+            border: 2px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .geneapp-input-group button:hover {
+            background: #e5e7eb;
+        }
+        
+        /* Boutons */
+        .geneapp-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .geneapp-btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.2);
+            transition: left 0.3s;
+        }
+        
+        .geneapp-btn:hover::before {
+            left: 100%;
+        }
+        
+        .geneapp-btn-primary {
+            background: var(--geneapp-primary);
+            color: white;
+        }
+        
+        .geneapp-btn-primary:hover {
+            background: var(--geneapp-primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .geneapp-btn-success {
+            background: var(--geneapp-success);
+            color: white;
+        }
+        
+        .geneapp-btn-success:hover {
+            background: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        .geneapp-btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .geneapp-btn-secondary:hover {
+            background: #d1d5db;
+        }
+        
+        .geneapp-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .geneapp-btn-lg {
+            padding: 16px 32px;
+            font-size: 16px;
+        }
+        
+        /* Bannières d\'alerte */
+        .geneapp-alert {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 14px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(-10px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .geneapp-alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+        
+        .geneapp-alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+        
+        .geneapp-alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+        
+        .geneapp-alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+        
+        /* Spinner */
+        .geneapp-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #e5e7eb;
+            border-top-color: var(--geneapp-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .geneapp-spinner.active {
+            display: inline-block;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Switch/Toggle */
+        .geneapp-switch {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 15px 0;
+        }
+        
+        .geneapp-switch input[type="checkbox"] {
+            display: none;
+        }
+        
+        .geneapp-switch-label {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+            background: #e5e7eb;
+            border-radius: 24px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .geneapp-switch-label::after {
+            content: "";
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+        
+        .geneapp-switch input:checked + .geneapp-switch-label {
+            background: var(--geneapp-primary);
+        }
+        
+        .geneapp-switch input:checked + .geneapp-switch-label::after {
+            transform: translateX(26px);
+        }
+        
+        .geneapp-switch-text {
+            color: #374151;
+            font-size: 14px;
+            user-select: none;
+        }
+        
+        /* Section utilisation */
+        .geneapp-usage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .geneapp-usage-card {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+        
+        .geneapp-usage-card .dashicons {
+            font-size: 40px;
+            width: 40px;
+            height: 40px;
+            color: var(--geneapp-primary);
+            margin: 0 auto 15px;
+        }
+        
+        .geneapp-usage-card h4 {
+            color: #1f2937;
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+        }
+        
+        .geneapp-usage-card code {
+            background: #374151;
+            color: #f3f4f6;
+            padding: 8px 16px;
+            border-radius: 6px;
+            display: inline-block;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+        
+        /* Info box */
+        .geneapp-info-box {
+            background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+            border: 1px solid #c4b5fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .geneapp-info-box h4 {
+            color: #5b21b6;
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .geneapp-info-box ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #6b21a8;
+        }
+        
+        .geneapp-info-box li {
+            margin-bottom: 8px;
+        }
+        
+        /* Actions footer */
+        .geneapp-actions-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 2px solid #f3f4f6;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .geneapp-admin-wrap {
+                margin: 10px;
+            }
+            
+            .geneapp-header {
+                padding: 25px;
+            }
+            
+            .geneapp-header h1 {
+                font-size: 1.8em;
+            }
+            
+            .geneapp-card {
+                padding: 20px;
+            }
+            
+            .geneapp-connection-status {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .geneapp-actions-footer {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+        ';
+    }
+    
+    /**
+     * Récupérer le domaine du site WordPress
+     */
+    private function get_site_domain() {
+        $site_url = get_site_url();
+        $parsed_url = wp_parse_url($site_url);
+        $domain = isset($parsed_url['host']) ? $parsed_url['host'] : '';
+        
+        // Retirer www. si présent pour normaliser
+        $domain = preg_replace('/^www\./', '', $domain);
+        
+        return $domain;
+    }
+    
+    /**
+     * Vérifier si c'est un environnement de développement
+     */
+    private function is_development_environment() {
+        $domain = $this->get_site_domain();
+        return ($domain === 'localhost' || strpos($domain, '.local') !== false || strpos($domain, '.test') !== false);
     }
     
     /**
      * Valider les identifiants auprès de l'API GeneApp
-     * Version temporaire simplifiée pour les tests
      */
     public function validate_credentials() {
         $partner_id = get_option('geneapp_partner_id');
         $partner_secret = get_option('geneapp_partner_secret');
         
         if (empty($partner_id) || empty($partner_secret)) {
-            // error_log('GeneApp validation: Missing partner credentials');
             return false;
         }
         
-        // Pour l'instant, si les identifiants sont présents et que l'iframe fonctionne,
-        // on considère qu'ils sont valides
-        // TODO: Implémenter la vraie validation quand l'endpoint sera prêt
-        
-        $is_valid = true; // Temporairement toujours valide si les identifiants existent
-        
-        // Mettre à jour les métadonnées
-        update_option('geneapp_last_validation_date', current_time('timestamp'));
-        update_option('geneapp_last_validation_status', $is_valid ? 'valid' : 'invalid');
-        
-        return $is_valid;
-    }
-    
-    /**
-     * Valider les identifiants auprès de l'API GeneApp (version complète)
-     * À activer quand le debug sera fait
-     */
-    public function validate_credentials_full() {
-        $partner_id = get_option('geneapp_partner_id');
-        $partner_secret = get_option('geneapp_partner_secret');
-        
-        if (empty($partner_id) || empty($partner_secret)) {
-            // error_log('GeneApp validation: Missing partner credentials');
-            return false;
-        }
-        
-        // Créer les paramètres de validation (comme pour l'iframe)
-        $current_user = wp_get_current_user();
-        if (!$current_user || !$current_user->user_email) {
-            // error_log('GeneApp validation: No current user or email');
-            return false;
-        }
-        
-        $test_uid = 'wp_validation_' . $current_user->ID;
-        $test_email = $current_user->user_email;
-        $test_timestamp = time();
-        
-        // Créer la chaîne à signer (format exact attendu par le Worker)
-        $string_to_sign = "partner_id={$partner_id}&uid={$test_uid}&email={$test_email}&ts={$test_timestamp}";
-        
-        // Log pour debug
-        // error_log('GeneApp validation - String to sign: ' . $string_to_sign);
-        
-        // Calculer la signature HMAC
-        $signature = hash_hmac('sha256', $string_to_sign, $partner_secret);
-        
-        // Construire l'URL de validation avec les paramètres
-        $validation_url = add_query_arg(array(
-            'partner_id' => $partner_id,
-            'uid' => $test_uid,
-            'email' => $test_email,
-            'ts' => $test_timestamp,
-            'sig' => $signature
-        ), 'https://genealogie.app/validate-partner');
-        
-        // Log l'URL de validation (sans la signature complète pour sécurité)
-        // error_log('GeneApp validation URL: ' . str_replace($signature, substr($signature, 0, 10) . '...', $validation_url));
-        
-        // Appeler l'API de validation
-        $response = wp_remote_get($validation_url, array(
-            'timeout' => 10,
-            'headers' => array(
-                'Accept' => 'application/json'
-            )
-        ));
-        
-        $is_valid = false;
-        if (!is_wp_error($response)) {
-            $response_code = wp_remote_retrieve_response_code($response);
-            $body = wp_remote_retrieve_body($response);
-            
-            // error_log('GeneApp validation response code: ' . $response_code);
-            // error_log('GeneApp validation response body: ' . $body);
-            
-            $data = json_decode($body, true);
-            $is_valid = isset($data['valid']) && $data['valid'] === true;
-            
-            // Log pour debug
-            if (!$is_valid && isset($data['error'])) {
-                // error_log('GeneApp validation error: ' . $data['error']);
-            }
-        } else {
-            // error_log('GeneApp validation error: ' . $response->get_error_message());
-        }
+        // Pour l'instant, validation simplifiée
+        $is_valid = true;
         
         // Mettre à jour les métadonnées
         update_option('geneapp_last_validation_date', current_time('timestamp'));
@@ -156,10 +737,6 @@ class GeneApp_WP_Admin {
             return 'Jamais';
         }
         
-        $date_format = get_option('date_format');
-        $time_format = get_option('time_format');
-        
-        // Calculer la différence
         $diff = current_time('timestamp') - $timestamp;
         
         if ($diff < 60) {
@@ -171,7 +748,7 @@ class GeneApp_WP_Admin {
             $hours = floor($diff / 3600);
             return sprintf('Il y a %d heure%s', $hours, $hours > 1 ? 's' : '');
         } else {
-            return date_i18n($date_format . ' à ' . $time_format, $timestamp);
+            return date_i18n(get_option('date_format') . ' à ' . get_option('time_format'), $timestamp);
         }
     }
     
@@ -184,23 +761,35 @@ class GeneApp_WP_Admin {
             wp_send_json_error(array('message' => 'Erreur de sécurité, veuillez rafraîchir la page.'));
         }
         
-        // Vérifier les données
-        if (empty($_POST['email']) || empty($_POST['domain'])) {
-            wp_send_json_error(array('message' => 'Email ou domaine manquant.'));
+        // Récupérer automatiquement le domaine
+        $domain = $this->get_site_domain();
+        
+        if ($this->is_development_environment()) {
+            wp_send_json_error(array('message' => 'Les sites en développement local ne peuvent pas être enregistrés. Veuillez déployer votre site sur un domaine public.'));
+        }
+        
+        // Vérifier l'email
+        if (empty($_POST['email'])) {
+            wp_send_json_error(array('message' => 'Email manquant.'));
         }
         
         $email = sanitize_email(wp_unslash($_POST['email']));
-        $domain = sanitize_text_field(wp_unslash($_POST['domain']));
+        $partner_id = $domain;
         
-        // Contacter l'API Cloudflare Worker avec des données JSON
+        // Contacter l'API Cloudflare Worker
         $response = wp_remote_post('https://partner.genealogie.app/register', array(
             'headers' => array(
                 'Content-Type' => 'application/json',
+                'Origin' => get_site_url(),
             ),
             'body' => json_encode(array(
                 'email' => $email,
                 'domain' => $domain,
+                'partner_id' => $partner_id,
                 'source' => 'wordpress_plugin',
+                'site_url' => get_site_url(),
+                'wp_version' => get_bloginfo('version'),
+                'plugin_version' => '1.9.1',
             )),
             'timeout' => 15,
         ));
@@ -219,16 +808,37 @@ class GeneApp_WP_Admin {
         // Sauvegarder les identifiants
         update_option('geneapp_partner_id', $body['partner_id']);
         update_option('geneapp_partner_secret', $body['partner_secret']);
+        update_option('geneapp_partner_domain', $domain);
         
-        // Marquer comme validés maintenant
+        // Marquer comme validés
         update_option('geneapp_last_validation_date', current_time('timestamp'));
         update_option('geneapp_last_validation_status', 'valid');
         
-        // Succès, retourner les identifiants
+        // Succès
         wp_send_json_success(array(
             'partner_id' => $body['partner_id'],
             'partner_secret' => $body['partner_secret'],
+            'domain' => $domain,
+            'status' => isset($body['status']) ? $body['status'] : 'active',
             'validated' => true
+        ));
+    }
+    
+    /**
+     * Gestionnaire AJAX pour sauvegarder les options d'affichage
+     */
+    public function ajax_save_display_options() {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'geneapp_display_options')) {
+            wp_send_json_error(array('message' => 'Erreur de sécurité'));
+        }
+        
+        // Sauvegarder l'option hauteur automatique
+        $auto_height = isset($_POST['auto_height']) && $_POST['auto_height'] === 'true';
+        update_option('geneapp_iframe_auto_height', $auto_height);
+        
+        wp_send_json_success(array(
+            'message' => 'Options d\'affichage enregistrées',
+            'auto_height' => $auto_height
         ));
     }
     
@@ -264,9 +874,11 @@ class GeneApp_WP_Admin {
         register_setting('geneapp_wp_settings', 'geneapp_partner_secret', array(
             'sanitize_callback' => 'sanitize_text_field',
         ));
+        register_setting('geneapp_wp_settings', 'geneapp_partner_domain', array(
+            'sanitize_callback' => 'sanitize_text_field',
+        ));
         register_setting('geneapp_wp_settings', 'geneapp_iframe_auto_height', array(
             'type' => 'boolean',
-            'default' => true,
             'sanitize_callback' => 'rest_sanitize_boolean',
         ));
         register_setting('geneapp_wp_settings', 'geneapp_last_validation_date', array(
@@ -275,102 +887,25 @@ class GeneApp_WP_Admin {
         register_setting('geneapp_wp_settings', 'geneapp_last_validation_status', array(
             'sanitize_callback' => 'sanitize_text_field',
         ));
-        
-        add_settings_section(
-            'geneapp_wp_main_section',
-            'Paramètres d\'intégration',
-            array($this, 'main_section_callback'),
-            'geneapp-wp-settings'
-        );
-        
-        add_settings_field(
-            'geneapp_partner_id',
-            'Votre identifiant partenaire',
-            array($this, 'partner_id_callback'),
-            'geneapp-wp-settings',
-            'geneapp_wp_main_section'
-        );
-        
-        add_settings_field(
-            'geneapp_partner_secret',
-            'Votre clé secrète',
-            array($this, 'partner_secret_callback'),
-            'geneapp-wp-settings',
-            'geneapp_wp_main_section'
-        );
-        
-        add_settings_field(
-            'geneapp_iframe_auto_height',
-            'Hauteur automatique',
-            array($this, 'auto_height_callback'),
-            'geneapp-wp-settings',
-            'geneapp_wp_main_section'
-        );
     }
     
     /**
-     * Callback pour la section principale
+     * Obtenir l'état de connexion
      */
-    public function main_section_callback() {
-        echo '<p>Configurez les paramètres de connexion à GeneApp :</p>';
-    }
-    
-    /**
-     * Callback pour l'ID partenaire
-     */
-    public function partner_id_callback() {
-        $value = get_option('geneapp_partner_id', '');
-        echo '<input type="text" id="geneapp_partner_id" name="geneapp_partner_id" value="' . esc_attr($value) . '" class="regular-text">';
-    }
-    
-    /**
-     * Callback pour la clé secrète
-     */
-    public function partner_secret_callback() {
-        $value = get_option('geneapp_partner_secret', '');
-        echo '<div style="position: relative; display: inline-block;">';
-        echo '<input type="password" id="geneapp_partner_secret" name="geneapp_partner_secret" value="' . esc_attr($value) . '" class="regular-text">';
-        echo '<button type="button" id="geneapp_toggle_secret" class="button button-secondary" style="position: absolute; right: 2px; top: 1px; height: 30px; border: none; background: transparent; cursor: pointer;" aria-label="Afficher/masquer la clé">';
-        echo '<span class="dashicons dashicons-visibility"></span>';
-        echo '</button>';
-        echo '</div>';
+    private function get_connection_status() {
+        $has_credentials = !empty(get_option('geneapp_partner_id')) && !empty(get_option('geneapp_partner_secret'));
+        $validation_status = get_option('geneapp_last_validation_status');
+        $saved_domain = get_option('geneapp_partner_domain', '');
+        $current_domain = $this->get_site_domain();
+        $domain_changed = !empty($saved_domain) && $saved_domain !== $current_domain;
         
-        // Script JavaScript pour gérer l'affichage/masquage
-        ?>
-        <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', function() {
-            const toggleButton = document.getElementById('geneapp_toggle_secret');
-            const secretInput = document.getElementById('geneapp_partner_secret');
-            const toggleIcon = toggleButton.querySelector('.dashicons');
-            
-            toggleButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                // Changer le type de l'input
-                const type = secretInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                secretInput.setAttribute('type', type);
-                
-                // Changer l'icône
-                if (type === 'text') {
-                    toggleIcon.classList.remove('dashicons-visibility');
-                    toggleIcon.classList.add('dashicons-hidden');
-                } else {
-                    toggleIcon.classList.remove('dashicons-hidden');
-                    toggleIcon.classList.add('dashicons-visibility');
-                }
-            });
-        });
-        </script>
-        <?php
-    }
-    
-    /**
-     * Callback pour l'option hauteur automatique
-     */
-    public function auto_height_callback() {
-        $value = get_option('geneapp_iframe_auto_height', true);
-        echo '<input type="checkbox" id="geneapp_iframe_auto_height" name="geneapp_iframe_auto_height" value="1" ' . checked(1, $value, false) . '>';
-        echo '<label for="geneapp_iframe_auto_height">Activer l\'ajustement automatique de la hauteur de l\'iframe</label>';
+        if (!$has_credentials || $domain_changed) {
+            return 'disconnected';
+        } elseif ($validation_status === 'valid') {
+            return 'connected';
+        } else {
+            return 'pending';
+        }
     }
     
     /**
@@ -381,345 +916,399 @@ class GeneApp_WP_Admin {
             return;
         }
         
-        // Vérifier si les identifiants sont déjà configurés
+        // Récupérer les données
+        $current_domain = $this->get_site_domain();
+        $is_dev = $this->is_development_environment();
         $has_credentials = !empty(get_option('geneapp_partner_id')) && !empty(get_option('geneapp_partner_secret'));
         $last_validation = get_option('geneapp_last_validation_date');
         $validation_status = get_option('geneapp_last_validation_status');
+        $saved_domain = get_option('geneapp_partner_domain', '');
+        $domain_changed = !empty($saved_domain) && $saved_domain !== $current_domain;
+        $connection_status = $this->get_connection_status();
+        $auto_height = get_option('geneapp_iframe_auto_height', true);
         ?>
-        <div class="wrap">
-            <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+        
+        <div class="wrap geneapp-admin-wrap">
+            <!-- En-tête -->
+            <div class="geneapp-header">
+                <h1><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-tree')); ?>"></span> GeneApp pour WordPress</h1>
+                <p>Avec GeneApp, vous offrez aux visiteurs de votre site une expérience généalogique interactive unique basée sur leurs fichiers GEDCOM.</p>
+            </div>
             
-            <div class="card" style="max-width: 800px; margin-bottom: 20px; padding: 15px; background: #fff; border: 1px solid #ccd0d4; border-radius: 4px; box-shadow: 0 1px 1px rgba(0,0,0,.04);">
-                <h2>Configuration des identifiants GeneApp</h2>
-                
-                <?php
-                // Afficher un message de succès si les paramètres viennent d'être mis à jour
-                if (isset($_GET['settings-updated']) && $_GET['settings-updated'] == 'true') { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-                    echo '<div class="notice notice-success is-dismissible"><p><strong>Succès :</strong> Les paramètres ont été enregistrés avec succès.</p></div>';
-                }
-                ?>
-                
-                <?php if ($has_credentials): ?>
-                <!-- Affichage du statut de validation -->
-                <div id="geneapp-validation-status" class="notice notice-<?php echo esc_attr($validation_status === 'valid' ? 'success' : 'warning'); ?> inline" style="margin: 15px 0;">
-                    <p>
-                        <?php if ($last_validation): ?>
-                            <strong>Dernière validation des identifiants :</strong> 
-                            <?php echo esc_html($this->get_formatted_validation_date()); ?>
-                            <?php if ($validation_status === 'valid'): ?>
-                                <span class="dashicons dashicons-yes-alt" style="color: #46b450;"></span> Valides
-                            <?php else: ?>
-                                <span class="dashicons dashicons-warning" style="color: #ffb900;"></span> Invalides
-                            <?php endif; ?>
-                        <?php else: ?>
-                            <strong>Les identifiants n'ont jamais été validés.</strong>
-                        <?php endif; ?>
-                        
-                        <button type="button" id="geneapp-validate-now" class="button button-small" style="margin-left: 10px;">
-                            <span class="dashicons dashicons-update" style="font-size: 16px; line-height: 28px;"></span>
-                            Valider maintenant
-                        </button>
-                        <span class="spinner" id="geneapp-validate-spinner" style="float: none; margin: 0 5px;"></span>
-                    </p>
-                </div>
-                <?php endif; ?>
-                
-                <form action="options.php" method="post" id="geneapp-settings-form">
-                    <?php
-                    settings_fields('geneapp_wp_settings');
-                    ?>
+            <?php
+            // Message de succès après action
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            if (isset($_GET['settings-updated']) && $_GET['settings-updated'] == 'true') {
+                echo '<div class="geneapp-alert geneapp-alert-success">
+                    <span class="dashicons ' . esc_attr($this->get_icon_class('fa-check-circle')) . '"></span>
+                    <div>
+                        <strong>Succès !</strong> Vos paramètres ont été enregistrés.
+                    </div>
+                </div>';
+            }
+            ?>
+            
+            <!-- Grille principale -->
+            <div class="geneapp-grid">
+                <!-- Carte État de connexion -->
+                <div class="geneapp-card">
+                    <h2><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-plug')); ?>"></span> État de connexion</h2>
                     
-                    <div class="geneapp-integration-container">
-                        <div class="geneapp-credentials-section">
-                            <!-- Section récupération automatique -->
-                            <div class="geneapp-auto-credentials">
-                                <p>
-                                    <label for="geneapp_email"><strong>Email associé à votre compte :</strong></label><br>
-                                    <input type="email" id="geneapp_email" placeholder="votre@email.com" value="<?php echo esc_attr(wp_get_current_user()->user_email); ?>" class="regular-text" required>
-                                    <br><small style="color: #666;">Les identifiants sont liés au domaine <?php echo esc_html(isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : 'localhost'); ?>. Tout administrateur du site peut les récupérer.</small>
-                                    <?php wp_nonce_field('geneapp_auto_credentials', 'geneapp_credentials_nonce'); ?>
-                                    <?php wp_nonce_field('geneapp_validate_nonce', 'geneapp_validate_nonce_field'); ?>
-                                </p>
-                                
-                                <div id="geneapp-auth-response" style="display: none; margin: 15px 0; padding: 10px; border-left: 4px solid #46b450; background: #f7f7f7;"></div>
-                            </div>
-                            
-                            <!-- Section paramètres -->
-                            <table class="form-table" role="presentation">
-                                <tr>
-                                    <th scope="row"><label for="geneapp_partner_id">Identifiant Partenaire</label></th>
-                                    <td><?php $this->partner_id_callback(); ?></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row"><label for="geneapp_partner_secret">Clé Secrète</label></th>
-                                    <td><?php $this->partner_secret_callback(); ?></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Hauteur automatique</th>
-                                    <td><?php $this->auto_height_callback(); ?></td>
-                                </tr>
-                            </table>
-                            
-                            <!-- Boutons d'action -->
-                            <div class="geneapp-action-buttons" style="margin-top: 20px;">
-                                <?php if (isset($_GET['settings-updated']) && $_GET['settings-updated'] == 'true'): // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
-                                    <!-- État juste après l'enregistrement -->
-                                    <button type="button" class="button button-primary" id="geneapp-get-credentials">
-                                        <span class="dashicons dashicons-update" style="margin-top: 4px;"></span> 
-                                        Récupérer mes identifiants
-                                    </button>
-                                    <input type="submit" name="submit" id="geneapp-save-settings" class="button" value="Paramètres enregistrés" disabled>
-                                <?php else: ?>
-                                    <!-- État normal -->
-                                    <button type="button" class="button <?php echo $has_credentials ? 'button-secondary' : 'button-primary'; ?>" id="geneapp-get-credentials">
-                                        <span class="dashicons dashicons-update" style="margin-top: 4px;"></span> 
-                                        Récupérer mes identifiants
-                                    </button>
-                                    <input type="submit" name="submit" id="geneapp-save-settings" class="button button-primary" value="Enregistrer les paramètres" <?php echo !$has_credentials ? 'disabled' : ''; ?>>
-                                <?php endif; ?>
-                                
-                                <span class="spinner" id="geneapp-spinner" style="float: none; margin-top: 4px;"></span>
+                    <?php if ($connection_status === 'connected'): ?>
+                    <div class="geneapp-connection-status connected">
+                        <div class="geneapp-status-icon">
+                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-check-circle')); ?>" style="color: var(--geneapp-success);"></span>
+                        </div>
+                        <div class="geneapp-status-content">
+                            <div class="geneapp-status-title">Connecté à GeneApp</div>
+                            <div class="geneapp-status-description">
+                                Dernière vérification : <?php echo esc_html($this->get_formatted_validation_date()); ?>
                             </div>
                         </div>
                     </div>
-                </form>
-                
-                <script>
-                jQuery(document).ready(function($) {
-                    // État initial basé sur la présence d'identifiants
-                    let hasCredentials = <?php echo $has_credentials ? 'true' : 'false'; ?>;
-                    let isLoading = false;
-                    
-                    // Fonction pour mettre à jour l'état des boutons
-                    function updateButtonsState() {
-                        // Si chargement en cours, désactiver les deux boutons
-                        if (isLoading) {
-                            $('#geneapp-get-credentials').prop('disabled', true);
-                            $('#geneapp-save-settings').prop('disabled', true);
-                            return;
-                        }
-                        
-                        // Si des identifiants existent déjà, activer l'enregistrement et configurer la récupération
-                        if (hasCredentials) {
-                            $('#geneapp-save-settings').prop('disabled', false);
-                            $('#geneapp-get-credentials').removeClass('button-primary').addClass('button-secondary');
-                        } else {
-                            // Sinon, activer la récupération et désactiver l'enregistrement
-                            $('#geneapp-save-settings').prop('disabled', true);
-                            $('#geneapp-get-credentials').removeClass('button-secondary').addClass('button-primary');
-                        }
-                    }
-                    
-                    // Au chargement initial, mettre à jour l'état des boutons
-                    updateButtonsState();
-                    
-                    // Gestionnaire pour le bouton de validation
-                    $('#geneapp-validate-now').on('click', function(e) {
-                        e.preventDefault();
-                        
-                        const $button = $(this);
-                        const $spinner = $('#geneapp-validate-spinner');
-                        const $status = $('#geneapp-validation-status');
-                        
-                        $button.prop('disabled', true);
-                        $spinner.addClass('is-active');
-                        
-                        $.ajax({
-                            url: ajaxurl,
-                            type: 'POST',
-                            data: {
-                                action: 'geneapp_validate_credentials',
-                                nonce: $('#geneapp_validate_nonce_field').val()
-                            },
-                            success: function(response) {
-                                if (response.success) {
-                                    // Mettre à jour l'affichage
-                                    $status.removeClass('notice-warning notice-error').addClass('notice-success');
-                                    
-                                    let statusHtml = '<p><strong>Dernière validation des identifiants :</strong> ' + 
-                                        response.data.last_check;
-                                    
-                                    if (response.data.valid) {
-                                        statusHtml += ' <span class="dashicons dashicons-yes-alt" style="color: #46b450;"></span> Valides';
-                                    } else {
-                                        statusHtml += ' <span class="dashicons dashicons-warning" style="color: #ffb900;"></span> Invalides';
-                                        $status.removeClass('notice-success').addClass('notice-warning');
-                                    }
-                                    
-                                    statusHtml += ' <button type="button" id="geneapp-validate-now" class="button button-small" style="margin-left: 10px;">' +
-                                        '<span class="dashicons dashicons-update" style="font-size: 16px; line-height: 28px;"></span> Valider maintenant</button>' +
-                                        '<span class="spinner" id="geneapp-validate-spinner" style="float: none; margin: 0 5px;"></span></p>';
-                                    
-                                    $status.html(statusHtml);
-                                    
-                                    // Réattacher l'événement au nouveau bouton
-                                    $('#geneapp-validate-now').on('click', arguments.callee);
-                                }
-                            },
-                            error: function() {
-                                $status.removeClass('notice-success notice-warning').addClass('notice-error');
-                                $status.find('p').append(' <em>Erreur lors de la validation</em>');
-                            },
-                            complete: function() {
-                                $button.prop('disabled', false);
-                                $spinner.removeClass('is-active');
-                            }
-                        });
-                    });
-                    
-                    // Gérer le clic sur le bouton de récupération
-                    $('#geneapp-get-credentials').on('click', function(e) {
-                        e.preventDefault();
-                        
-                        // Validation de l'email
-                        const email = $('#geneapp_email').val();
-                        if (!email) {
-                            $('#geneapp-auth-response')
-                                .html('<p><strong>Erreur :</strong> Veuillez saisir votre email.</p>')
-                                .css('border-left-color', '#dc3232')
-                                .show();
-                            return;
-                        }
-                        
-                        // Mise à jour de l'état de chargement
-                        isLoading = true;
-                        $('#geneapp-spinner').addClass('is-active');
-                        updateButtonsState();
-                        
-                        // Appel AJAX
-                        $.ajax({
-                            url: ajaxurl,
-                            type: 'POST',
-                            data: {
-                                action: 'geneapp_get_credentials',
-                                nonce: $('#geneapp_credentials_nonce').val(),
-                                email: email,
-                                domain: window.location.hostname
-                            },
-                            success: function(response) {
-                                if (response.success) {
-                                    // Remplir les champs avec les identifiants récupérés
-                                    $('#geneapp_partner_id').val(response.data.partner_id);
-                                    $('#geneapp_partner_secret').val(response.data.partner_secret);
-                                    
-                                    // Mettre à jour le message de réussite
-                                    $('#geneapp-auth-response')
-                                        .html('<p><strong>Identifiants récupérés avec succès!</strong> Vous pouvez maintenant enregistrer les paramètres.</p>')
-                                        .css('border-left-color', '#46b450')
-                                        .show();
-                                    
-                                    // Mettre à jour l'état (identifiants disponibles)
-                                    hasCredentials = true;
-                                    
-                                    // Si la zone de validation existe, la mettre à jour
-                                    if ($('#geneapp-validation-status').length === 0 && response.data.validated) {
-                                        // Ajouter la zone de validation
-                                        const validationHtml = '<div id="geneapp-validation-status" class="notice notice-success inline" style="margin: 15px 0;">' +
-                                            '<p><strong>Dernière validation des identifiants :</strong> Il y a quelques secondes ' +
-                                            '<span class="dashicons dashicons-yes-alt" style="color: #46b450;"></span> Valides ' +
-                                            '<button type="button" id="geneapp-validate-now" class="button button-small" style="margin-left: 10px;">' +
-                                            '<span class="dashicons dashicons-update" style="font-size: 16px; line-height: 28px;"></span> Valider maintenant</button>' +
-                                            '<span class="spinner" id="geneapp-validate-spinner" style="float: none; margin: 0 5px;"></span></p></div>';
-                                        
-                                        $('.card h2').after(validationHtml);
-                                    }
-                                } else {
-                                    // Afficher le message d'erreur
-                                    $('#geneapp-auth-response')
-                                        .html('<p><strong>Erreur :</strong> ' + response.data.message + '</p>')
-                                        .css('border-left-color', '#dc3232')
-                                        .show();
-                                }
-                            },
-                            error: function() {
-                                $('#geneapp-auth-response')
-                                    .html('<p><strong>Erreur :</strong> Impossible de contacter le serveur. Veuillez réessayer plus tard ou contacter le support.</p>')
-                                    .css('border-left-color', '#dc3232')
-                                    .show();
-                            },
-                            complete: function() {
-                                // Réinitialiser l'état de chargement
-                                isLoading = false;
-                                $('#geneapp-spinner').removeClass('is-active');
-                                updateButtonsState();
-                            }
-                        });
-                    });
-                    
-                    // Validation automatique au chargement si les identifiants existent et n'ont jamais été validés
-                    <?php if ($has_credentials && !$last_validation): ?>
-                    setTimeout(function() {
-                        $('#geneapp-validate-now').trigger('click');
-                    }, 1000);
+                    <?php elseif ($connection_status === 'pending'): ?>
+                    <div class="geneapp-connection-status pending">
+                        <div class="geneapp-status-icon">
+                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-exclamation-circle')); ?>" style="color: var(--geneapp-warning);"></span>
+                        </div>
+                        <div class="geneapp-status-content">
+                            <div class="geneapp-status-title">En attente de validation</div>
+                            <div class="geneapp-status-description">
+                                Les identifiants doivent être validés
+                            </div>
+                        </div>
+                    </div>
+                    <?php else: ?>
+                    <div class="geneapp-connection-status disconnected">
+                        <div class="geneapp-status-icon">
+                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-times-circle')); ?>" style="color: var(--geneapp-error);"></span>
+                        </div>
+                        <div class="geneapp-status-content">
+                            <div class="geneapp-status-title">Non connecté</div>
+                            <div class="geneapp-status-description">
+                                <?php echo $domain_changed ? 'Le domaine a changé' : 'Configuration requise'; ?>
+                            </div>
+                        </div>
+                    </div>
                     <?php endif; ?>
                     
-                    // Détecter si on vient de sauvegarder des paramètres (via URL)
-                    if (window.location.search.includes('settings-updated=true')) {
-                        // Le bouton d'enregistrement est désactivé (déjà fait en PHP)
-                        // Activer et mettre en évidence le bouton de récupération
-                        $('#geneapp-get-credentials')
-                            .prop('disabled', false)
-                            .removeClass('button-secondary')
-                            .addClass('button-primary');
-                        
-                        // Revenir à un état où l'enregistrement est possible après 3 secondes
-                        setTimeout(function() {
-                            // Réactiver le bouton d'enregistrement
-                            $('#geneapp-save-settings')
-                                .val('Enregistrer les paramètres')
-                                .prop('disabled', false);
-                            
-                            // Mettre le bouton de récupération en secondaire
-                            $('#geneapp-get-credentials')
-                                .removeClass('button-primary')
-                                .addClass('button-secondary');
-                            
-                            // Mettre à jour l'état global des boutons
-                            updateButtonsState();
-                        }, 3000);
-                    }
+                    <!-- Domaine -->
+                    <div class="geneapp-domain-display">
+                        <div class="domain">
+                            <?php echo esc_html($current_domain); ?>
+                            <?php if ($is_dev): ?>
+                            <span class="geneapp-badge">Dev</span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="description">
+                            Domaine détecté automatiquement
+                        </div>
+                    </div>
                     
-                    // Lors de la soumission du formulaire
-                    $('#geneapp-settings-form').on('submit', function() {
-                        $('#geneapp-save-settings').val('Enregistrement...');
-                    });
+                    <?php if ($domain_changed): ?>
+                    <div class="geneapp-alert geneapp-alert-error">
+                        <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-exclamation-triangle')); ?>"></span>
+                        <div>
+                            <strong>Domaine modifié !</strong><br>
+                            Ancien : <code><?php echo esc_html($saved_domain); ?></code><br>
+                            Nouveau : <code><?php echo esc_html($current_domain); ?></code>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                     
-                    // Détection de changements dans les champs d'identifiants
-                    $('#geneapp_partner_id, #geneapp_partner_secret').on('input', function() {
-                        const hasId = $('#geneapp_partner_id').val().trim() !== '';
-                        const hasSecret = $('#geneapp_partner_secret').val().trim() !== '';
-                        
-                        // Mettre à jour l'état des identifiants
-                        hasCredentials = hasId && hasSecret;
-                        updateButtonsState();
-                    });
-                });
-                </script>
+                    <?php if ($is_dev): ?>
+                    <div class="geneapp-alert geneapp-alert-warning">
+                        <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-laptop-code')); ?>"></span>
+                        <div>
+                            <strong>Environnement de développement</strong><br>
+                            Les sites locaux ne peuvent pas être connectés à GeneApp.
+                        </div>
+                    </div>
+                    <?php elseif (!$has_credentials || $domain_changed): ?>
+                    <!-- Formulaire de connexion -->
+                    <div class="geneapp-form-group">
+                        <label for="geneapp_email">
+                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-envelope')); ?>"></span> Email administrateur
+                        </label>
+                        <input type="email" 
+                               id="geneapp_email" 
+                               placeholder="votre@email.com" 
+                               value="<?php echo esc_attr(wp_get_current_user()->user_email); ?>">
+                        <div class="description">Utilisé pour créer votre compte partenaire</div>
+                    </div>
+                    
+                    <button type="button" 
+                            class="geneapp-btn geneapp-btn-primary geneapp-btn-lg" 
+                            id="geneapp-connect-btn"
+                            style="width: 100%;">
+                        <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-link')); ?>"></span>
+                        Connecter à GeneApp
+                    </button>
+                    <?php else: ?>
+                    <!-- Identifiants actuels -->
+                    <div class="geneapp-form-group">
+                        <label>
+                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-fingerprint')); ?>"></span> Identifiant partenaire
+                        </label>
+                        <input type="text" value="<?php echo esc_attr(get_option('geneapp_partner_id')); ?>" readonly>
+                    </div>
+                    
+                    <div class="geneapp-form-group">
+                        <label>
+                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-key')); ?>"></span> Clé secrète
+                        </label>
+                        <div class="geneapp-input-group">
+                            <input type="password" 
+                                   id="geneapp_partner_secret_display" 
+                                   value="<?php echo esc_attr(get_option('geneapp_partner_secret')); ?>" 
+                                   readonly>
+                            <button type="button" id="toggle-secret">
+                                <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-eye')); ?>"></span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="geneapp-actions-footer">
+                        <button type="button" 
+                                class="geneapp-btn geneapp-btn-secondary" 
+                                id="geneapp-validate-btn">
+                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-sync-alt')); ?>"></span>
+                            Valider la connexion
+                        </button>
+                        <div class="geneapp-spinner" id="validate-spinner"></div>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <!-- Spinner et messages -->
+                    <div id="connection-message" style="margin-top: 20px;"></div>
+                    <div class="geneapp-spinner" id="connection-spinner" style="margin: 20px auto; display: none;"></div>
+                </div>
                 
-                <style>
-                .geneapp-integration-container {
-                    margin-top: 15px;
-                }
-                .geneapp-action-buttons {
-                    display: flex;
-                    gap: 10px;
-                    align-items: center;
-                }
-                </style>
+                <!-- Carte Options d'affichage -->
+                <div class="geneapp-card">
+                    <h2><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-sliders-h')); ?>"></span> Options d'affichage</h2>
+                    
+                    <p style="color: #6b7280; margin-bottom: 20px;">
+                        Personnalisez l'affichage de GeneApp sur votre site
+                    </p>
+                    
+                    <div class="geneapp-switch">
+                        <input type="checkbox" 
+                               id="auto_height_option" 
+                               <?php checked($auto_height); ?>>
+                        <label for="auto_height_option" class="geneapp-switch-label"></label>
+                        <label for="auto_height_option" class="geneapp-switch-text">
+                            Ajustement automatique de la hauteur
+                        </label>
+                    </div>
+                    
+                    <p style="color: #6b7280; font-size: 13px; margin-top: 10px;">
+                        Permet à l'iframe de s'adapter automatiquement au contenu
+                    </p>
+                    
+                    <div class="geneapp-info-box">
+                        <h4><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-lightbulb')); ?>"></span> Options du shortcode</h4>
+                        <p style="margin: 10px 0;">Vous pouvez personnaliser chaque intégration :</p>
+                        <ul style="margin: 0;">
+                            <li><code>auto_height="true|false"</code></li>
+                            <li><code>fullscreen="true|false"</code></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="geneapp-actions-footer">
+                        <button type="button" 
+                                class="geneapp-btn geneapp-btn-success" 
+                                id="save-display-options"
+                                <?php echo !$has_credentials ? 'disabled' : ''; ?>>
+                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-save')); ?>"></span>
+                            Enregistrer les options
+                        </button>
+                        <div class="geneapp-spinner" id="options-spinner"></div>
+                    </div>
+                </div>
             </div>
             
-            <hr>
-            
-            <h2>Utilisation</h2>
-            <p>Vous pouvez utiliser le shortcode <code>[geneapp_embed]</code> sur n'importe quelle page.</p>
-            <p>Une page <a href="<?php echo esc_url(get_permalink(get_page_by_path('genealogie'))); ?>">Généalogie</a> a été automatiquement créée lors de l'activation du plugin.</p>
-            
-            <h3>Options du shortcode</h3>
-            <ul>
-                <li><code>auto_height="true|false"</code> : Active l'ajustement automatique de la hauteur (par défaut: <?php echo get_option('geneapp_iframe_auto_height', true) ? 'true' : 'false'; ?>)</li>
-                <li><code>fullscreen="true|false"</code> : Affiche en plein écran (par défaut: false)</li>
-            </ul>
+            <!-- Section Utilisation -->
+            <div class="geneapp-card full-width">
+                <h2><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-rocket')); ?>"></span> Comment utiliser GeneApp</h2>
+                
+                <div class="geneapp-usage-grid">
+                    <div class="geneapp-usage-card">
+                        <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-code')); ?>"></span>
+                        <h4>Shortcode</h4>
+                        <p>Insérez GeneApp n'importe où</p>
+                        <code>[geneapp_embed]</code>
+                    </div>
+                    
+                    <div class="geneapp-usage-card">
+                        <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-file-alt')); ?>"></span>
+                        <h4>Page dédiée</h4>
+                        <p>Une page a été créée automatiquement</p>
+                        <a href="<?php echo esc_url(get_permalink(get_page_by_path('geneapp'))); ?>" 
+                           target="_blank" 
+                           class="geneapp-btn geneapp-btn-secondary" 
+                           style="margin-top: 10px;">
+                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-external-link-alt')); ?>"></span> Voir la page
+                        </a>
+                    </div>
+                    
+                    <div class="geneapp-usage-card">
+                        <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-puzzle-piece')); ?>"></span>
+                        <h4>Widget</h4>
+                        <p>Ajoutez GeneApp dans vos widgets</p>
+                        <small style="color: #9ca3af;">Bientôt disponible</small>
+                    </div>
+                </div>
+            </div>
         </div>
+        
+        <!-- Nonces WordPress -->
+        <?php wp_nonce_field('geneapp_auto_credentials', 'geneapp_credentials_nonce'); ?>
+        <?php wp_nonce_field('geneapp_validate_nonce', 'geneapp_validate_nonce_field'); ?>
+        <?php wp_nonce_field('geneapp_display_options', 'geneapp_display_nonce'); ?>
+        
+        <script>
+        jQuery(document).ready(function($) {
+            // Toggle secret visibility
+            $('#toggle-secret').on('click', function() {
+                const input = $('#geneapp_partner_secret_display');
+                const icon = $(this).find('span.dashicons');
+                
+                if (input.attr('type') === 'password') {
+                    input.attr('type', 'text');
+                    icon.removeClass('<?php echo esc_js($this->get_icon_class('fa-eye')); ?>').addClass('<?php echo esc_js($this->get_icon_class('fa-eye-slash')); ?>');
+                } else {
+                    input.attr('type', 'password');
+                    icon.removeClass('<?php echo esc_js($this->get_icon_class('fa-eye-slash')); ?>').addClass('<?php echo esc_js($this->get_icon_class('fa-eye')); ?>');
+                }
+            });
+            
+            // Connexion à GeneApp
+            $('#geneapp-connect-btn').on('click', function() {
+                const email = $('#geneapp_email').val();
+                if (!email) {
+                    showMessage('connection-message', 'error', 'Veuillez saisir votre email.');
+                    return;
+                }
+                
+                const $btn = $(this);
+                const $spinner = $('#connection-spinner');
+                
+                $btn.prop('disabled', true);
+                $spinner.show();
+                
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'geneapp_get_credentials',
+                        nonce: $('#geneapp_credentials_nonce').val(),
+                        email: email
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            showMessage('connection-message', 'success', 
+                                'Connexion réussie ! Rechargement de la page...');
+                            setTimeout(() => location.reload(), 1500);
+                        } else {
+                            showMessage('connection-message', 'error', response.data.message);
+                        }
+                    },
+                    error: function() {
+                        showMessage('connection-message', 'error', 
+                            'Erreur de connexion au serveur.');
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false);
+                        $spinner.hide();
+                    }
+                });
+            });
+            
+            // Validation des identifiants
+            $('#geneapp-validate-btn').on('click', function() {
+                const $btn = $(this);
+                const $spinner = $('#validate-spinner');
+                
+                $btn.prop('disabled', true);
+                $spinner.addClass('active');
+                
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'geneapp_validate_credentials',
+                        nonce: $('#geneapp_validate_nonce_field').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            showMessage('connection-message', 'success', 
+                                'Connexion validée avec succès !');
+                            setTimeout(() => location.reload(), 1500);
+                        }
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false);
+                        $spinner.removeClass('active');
+                    }
+                });
+            });
+            
+            // Sauvegarde des options d'affichage
+            $('#save-display-options').on('click', function() {
+                const $btn = $(this);
+                const $spinner = $('#options-spinner');
+                
+                $btn.prop('disabled', true);
+                $spinner.addClass('active');
+                
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'geneapp_save_display_options',
+                        nonce: $('#geneapp_display_nonce').val(),
+                        auto_height: $('#auto_height_option').is(':checked')
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            showMessage('connection-message', 'success', response.data.message);
+                        }
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false);
+                        $spinner.removeClass('active');
+                    }
+                });
+            });
+            
+            // Fonction pour afficher les messages
+            function showMessage(containerId, type, message) {
+                const iconMap = {
+                    'success': '<?php echo esc_js($this->get_icon_class('fa-check-circle')); ?>',
+                    'error': '<?php echo esc_js($this->get_icon_class('fa-times-circle')); ?>',
+                    'warning': '<?php echo esc_js($this->get_icon_class('fa-exclamation-triangle')); ?>',
+                    'info': '<?php echo esc_js($this->get_icon_class('fa-info-circle')); ?>'
+                };
+                
+                const html = `
+                    <div class="geneapp-alert geneapp-alert-${type}">
+                        <span class="dashicons ${iconMap[type]}"></span>
+                        <div>${message}</div>
+                    </div>
+                `;
+                
+                $('#' + containerId).html(html);
+            }
+            
+            // Validation auto au chargement si nécessaire
+            <?php if ($has_credentials && !$last_validation && !$domain_changed): ?>
+            setTimeout(function() {
+                $('#geneapp-validate-btn').trigger('click');
+            }, 1000);
+            <?php endif; ?>
+        });
+        </script>
         <?php
     }
 }

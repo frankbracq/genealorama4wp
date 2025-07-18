@@ -2,7 +2,7 @@
 /**
  * Plugin Name: GeneApp-WP
  * Description: Intégration de GeneApp avec template de page dédié et validation des identifiants
- * Version: 1.9.0
+ * Version: 1.9.1
  * Author: geneapp-wp.fr
  * License: GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
@@ -234,7 +234,7 @@ public function geneapp_shortcode($atts) {
             $this->create_css_file();
         }
         
-        wp_register_style('geneapp-wp-styles', plugins_url('assets/css/geneapp.css', __FILE__), array(), '1.9.0');
+        wp_register_style('geneapp-wp-styles', plugins_url('assets/css/geneapp.css', __FILE__), array(), '1.9.1');
         wp_enqueue_style('geneapp-wp-styles');
     }
     

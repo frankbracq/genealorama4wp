@@ -1,5 +1,33 @@
 # Changelog - GeneApp-WP
 
+## Version 1.9.1 - 2025-07-18
+### Nouvelles fonctionnalités
+- **Interface d'administration moderne** : Refonte complète de l'interface avec un design moderne et responsive
+  - Détection automatique du domaine WordPress comme identifiant partenaire
+  - Réorganisation en cartes distinctes (connexion vs options)
+  - Indicateurs visuels de l'état de connexion (connecté/en attente/déconnecté)
+  - Bouton unique "Se connecter à GeneApp" pour simplifier le processus
+  - Commutateur iOS pour les options booléennes
+  - Sauvegarde AJAX des options d'affichage sans rechargement de page
+
+### Améliorations UX
+- **Flux de travail simplifié** : Suppression du bouton "Enregistrer les paramètres" ambigu
+- **Gestion des environnements de développement** : Avertissements pour les sites localhost
+- **Responsive design** : Interface optimisée pour mobile et desktop
+- **Animations et transitions** : Effets visuels pour une meilleure expérience utilisateur
+
+### Corrections techniques
+- **Conformité WordPress Plugin Check** : Résolution de toutes les erreurs et avertissements
+  - Remplacement de `parse_url()` par `wp_parse_url()` pour la compatibilité PHP
+  - Suppression de la dépendance externe Font Awesome (utilisation de Dashicons)
+  - Ajout de callbacks de validation appropriés pour `register_setting()`
+  - Amélioration de la sécurité avec validation des nonces
+
+### Améliorations de sécurité
+- **Identifiant partenaire basé sur le domaine** : Garantit l'unicité et la sécurité
+- **Détection automatique des changements de domaine** : Validation côté serveur
+- **Validation des nonces** : Sécurisation des actions AJAX
+
 ## Version 1.9.0 - 2025-07-17
 ### Nouvelles fonctionnalités
 - **Système de validation des identifiants** : Ajout d'un système complet de validation des identifiants partenaire
