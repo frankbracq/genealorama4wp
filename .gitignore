@@ -1,0 +1,47 @@
+# Fichiers de build et tests
+*.zip
+*.tar.gz
+*.rar
+
+# Fichiers temporaires
+*.tmp
+*.temp
+*~
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+debug.log
+error.log
+
+# Fichiers de configuration locaux
+.env
+.env.local
+.env.*.local
+
+# Dépendances
+node_modules/
+vendor/
+
+# Caches
+.cache/
+.sass-cache/
+.tmp/
+
+# Fichiers d'éditeur
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Fichiers de build WordPress
+wp-config.php
+wp-content/uploads/
+wp-content/upgrade/
+wp-content/backup-db/
+wp-content/advanced-cache.php
+wp-content/wp-cache-config.php
+wp-content/cache/
+wp-content/backups/

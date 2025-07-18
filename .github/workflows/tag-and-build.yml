@@ -54,7 +54,7 @@ jobs:
       - name: Package plugin into geneapp-wp.zip
         run: |
           mkdir package
-          rsync -av --progress ./ ./package/geneapp-wp --exclude .git --exclude .github --exclude geneapp-wp.zip --exclude readme.txt --exclude build-plugin.sh --exclude create-zip.sh --exclude '*.md' --exclude '*.pdf' --exclude '*.txt'
+          rsync -av --progress ./ ./package/geneapp-wp --exclude .git --exclude .github --exclude geneapp-wp.zip --exclude readme.txt --exclude build-plugin.sh --exclude create-zip.sh --exclude '*.md' --exclude '*.pdf' --exclude '*.txt' --exclude '*.zip'
           
           # Convertir readme.md en readme.txt au format WordPress
           cat > ./package/geneapp-wp/readme.txt << EOF
