@@ -53,11 +53,17 @@ jobs:
 
       - name: Package plugin into secure-iframe-embed-for-genealorama.zip
         run: |
-          mkdir package
-          rsync -av --progress ./ ./package/secure-iframe-embed-for-genealorama --exclude .git --exclude .github --exclude secure-iframe-embed-for-genealorama.zip --exclude build-plugin.sh --exclude create-zip.sh --exclude '*.md' --exclude '*.pdf' --exclude '*.zip'
+          mkdir -p package/secure-iframe-embed-for-genealorama/includes
+          mkdir -p package/secure-iframe-embed-for-genealorama/assets
           
-          # Copy the existing readme.txt file
-          cp readme.txt ./package/secure-iframe-embed-for-genealorama/
+          # Copy only necessary plugin files
+          cp genealorama.php package/secure-iframe-embed-for-genealorama/
+          cp readme.txt package/secure-iframe-embed-for-genealorama/
+          cp LICENSE package/secure-iframe-embed-for-genealorama/
+          cp CHANGELOG.md package/secure-iframe-embed-for-genealorama/
+          cp includes/admin-settings.php package/secure-iframe-embed-for-genealorama/includes/
+          cp includes/signature.php package/secure-iframe-embed-for-genealorama/includes/
+          cp -r assets package/secure-iframe-embed-for-genealorama/ 2>/dev/null || true
           
           cd package
           zip -r ../secure-iframe-embed-for-genealorama.zip secure-iframe-embed-for-genealorama

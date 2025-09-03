@@ -2,6 +2,13 @@
 *.zip
 *.tar.gz
 *.rar
+# Scripts de build locaux exclus du repo mais pas de l'action GitHub
+create-zip.sh
+build-plugin.sh
+# Documentation de développement (garde CHANGELOG.md et readme.txt pour WordPress.org)
+README.md
+docs/
+# Note: readme.txt est gardé car requis par WordPress.org
 
 # Fichiers temporaires
 *.tmp

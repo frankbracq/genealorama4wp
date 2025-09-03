@@ -15,7 +15,7 @@ mkdir -p $TEMP_DIR/secure-iframe-embed-for-genealorama/includes
 mkdir -p $TEMP_DIR/secure-iframe-embed-for-genealorama/assets
 mkdir -p $TEMP_DIR/secure-iframe-embed-for-genealorama/templates
 
-# Copy files
+# Copy files (excluding development files)
 cp genealorama.php $TEMP_DIR/secure-iframe-embed-for-genealorama/
 cp LICENSE $TEMP_DIR/secure-iframe-embed-for-genealorama/
 cp CHANGELOG.md $TEMP_DIR/secure-iframe-embed-for-genealorama/
@@ -25,6 +25,9 @@ cp -r assets $TEMP_DIR/secure-iframe-embed-for-genealorama/ 2>/dev/null || true
 
 # Copy existing readme.txt file
 cp readme.txt $TEMP_DIR/secure-iframe-embed-for-genealorama/
+
+# Exclude development files (.gitignore, .git folder, etc.)
+# Note: Using explicit file copying above ensures only necessary files are included
 
 # Create ZIP
 cd $TEMP_DIR
