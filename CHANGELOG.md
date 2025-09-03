@@ -1,5 +1,15 @@
 # Changelog - GeneApp-WP
 
+## Version 1.9.2 - 2025-09-03
+### Migration de domaine
+- **Nouvelle URL de l'application** : Migration de `genealogie.app` vers `app.genealorama.com`
+  - URL iframe par défaut : `https://app.genealorama.com/iframe-entry/`
+  - Support du nouveau domaine dans les vérifications d'origine JavaScript
+  - Maintien de la compatibilité avec les domaines existants (genealogie.app, familystory.live)
+- **Architecture hybride** : Les Workers restent sur `genealogie.app` pour les certificats SSL
+  - API de validation : `https://genealogie.app/validate-partner`
+  - API d'enregistrement : `https://partner-registration.genealogie.app/register`
+
 ## Version 1.9.1 - 2025-07-18
 ### Nouvelles fonctionnalités
 - **Interface d'administration moderne** : Refonte complète de l'interface avec un design moderne et responsive

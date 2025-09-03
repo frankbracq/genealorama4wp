@@ -45,7 +45,7 @@ Lors de l'activation, le plugin :
 
 ### Configuration des clés d'API
 
-Pour activer l'intégration avec genealogie.app :
+Pour activer l'intégration avec app.genealorama.com :
 
 1. Allez dans **Réglages > GeneApp-WP**
 2. Entrez votre **Email** et cliquez sur "Récupérer mes identifiants"
@@ -90,7 +90,7 @@ Avec options :
 
 | Paramètre | Valeur par défaut | Description |
 |-----------|-------------------|-------------|
-| `src` | `https://genealogie.app/iframe-entry/` | URL de l'application |
+| `src` | `https://app.genealorama.com/iframe-entry/` | URL de l'application |
 | `auto_height` | `true` | Ajustement automatique de la hauteur |
 | `fullscreen` | `false` | Mode plein écran |
 

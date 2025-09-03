@@ -1,51 +1,51 @@
 <?php
 /**
- * Page d'options pour le plugin GeneApp-WP
- * Version avec interface réorganisée et moderne
+ * Options page for Secure Iframe Embed for Genealorama plugin
+ * Version with reorganized and modern interface
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-class GeneApp_WP_Admin {
+class Secure_Iframe_Embed_For_Genealorama_Admin {
     
     /**
-     * Initialisation de la page d'administration
+     * Initialize the admin page
      */
     public function __construct() {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_styles'));
         
-        // Ajouter le lien "Paramètres" dans la liste des plugins
-        $plugin_basename = plugin_basename(dirname(dirname(__FILE__)) . '/geneapp-wp.php');
+        // Add "Settings" link in the plugin list
+        $plugin_basename = plugin_basename(dirname(dirname(__FILE__)) . '/genealorama.php');
         add_filter('plugin_action_links_' . $plugin_basename, array($this, 'add_settings_link'));
         
-        // Ajouter les gestionnaires AJAX
-        add_action('wp_ajax_geneapp_get_credentials', array($this, 'ajax_get_credentials'));
-        add_action('wp_ajax_geneapp_validate_credentials', array($this, 'ajax_validate_credentials'));
-        add_action('wp_ajax_geneapp_save_display_options', array($this, 'ajax_save_display_options'));
+        // Add AJAX handlers
+        add_action('wp_ajax_genealorama_get_credentials', array($this, 'ajax_get_credentials'));
+        add_action('wp_ajax_genealorama_validate_credentials', array($this, 'ajax_validate_credentials'));
+        add_action('wp_ajax_genealorama_save_display_options', array($this, 'ajax_save_display_options'));
     }
     
     /**
-     * Enqueue les styles et scripts admin
+     * Enqueue admin styles and scripts
      */
     public function enqueue_admin_styles($hook) {
-        // Seulement sur notre page d'admin
-        if ($hook !== 'settings_page_geneapp-wp-settings') {
+        // Only on our admin page
+        if ($hook !== 'settings_page_secure-iframe-embed-for-genealorama-settings') {
             return;
         }
         
-        // Utiliser Dashicons au lieu de Font Awesome (déjà inclus dans WordPress)
+        // Use Dashicons instead of Font Awesome (already included in WordPress)
         wp_enqueue_style('dashicons');
         
-        // Ajouter nos styles personnalisés
+        // Add our custom styles
         wp_add_inline_style('wp-admin', $this->get_admin_styles());
     }
     
     /**
-     * Obtenir les icônes Dashicons équivalentes
+     * Get equivalent Dashicons
      */
     private function get_icon_class($icon) {
         $icon_map = array(
@@ -85,25 +85,25 @@ class GeneApp_WP_Admin {
         return '
         /* Variables CSS */
         :root {
-            --geneapp-primary: #667eea;
-            --geneapp-primary-dark: #5a67d8;
-            --geneapp-secondary: #764ba2;
-            --geneapp-success: #10b981;
-            --geneapp-warning: #f59e0b;
-            --geneapp-error: #ef4444;
-            --geneapp-info: #3b82f6;
+            --genealorama-primary: #667eea;
+            --genealorama-primary-dark: #5a67d8;
+            --genealorama-secondary: #764ba2;
+            --genealorama-success: #10b981;
+            --genealorama-warning: #f59e0b;
+            --genealorama-error: #ef4444;
+            --genealorama-info: #3b82f6;
         }
         
         /* Reset et base */
-        .geneapp-admin-wrap {
+        .genealorama-admin-wrap {
             max-width: 1200px;
             margin: 20px auto;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
         
         /* En-tête principal */
-        .geneapp-header {
-            background: linear-gradient(135deg, var(--geneapp-primary) 0%, var(--geneapp-secondary) 100%);
+        .genealorama-header {
+            background: linear-gradient(135deg, var(--genealorama-primary) 0%, var(--genealorama-secondary) 100%);
             color: white;
             padding: 40px;
             border-radius: 12px;
@@ -113,7 +113,7 @@ class GeneApp_WP_Admin {
             overflow: hidden;
         }
         
-        .geneapp-header::before {
+        .genealorama-header::before {
             content: "";
             position: absolute;
             top: -50%;
@@ -124,7 +124,7 @@ class GeneApp_WP_Admin {
             transform: rotate(35deg);
         }
         
-        .geneapp-header h1 {
+        .genealorama-header h1 {
             color: white;
             margin: 0;
             font-size: 2.5em;
@@ -136,7 +136,7 @@ class GeneApp_WP_Admin {
             z-index: 1;
         }
         
-        .geneapp-header p {
+        .genealorama-header p {
             color: rgba(255,255,255,0.9);
             margin-top: 10px;
             font-size: 1.1em;
@@ -145,7 +145,7 @@ class GeneApp_WP_Admin {
         }
         
         /* Layout en grille */
-        .geneapp-grid {
+        .genealorama-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 30px;
@@ -153,13 +153,13 @@ class GeneApp_WP_Admin {
         }
         
         @media (max-width: 968px) {
-            .geneapp-grid {
+            .genealorama-grid {
                 grid-template-columns: 1fr;
             }
         }
         
         /* Cartes */
-        .geneapp-card {
+        .genealorama-card {
             background: white;
             border-radius: 12px;
             padding: 30px;
@@ -169,16 +169,16 @@ class GeneApp_WP_Admin {
             position: relative;
         }
         
-        .geneapp-card:hover {
+        .genealorama-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 30px rgba(0,0,0,0.12);
         }
         
-        .geneapp-card.full-width {
+        .genealorama-card.full-width {
             grid-column: 1 / -1;
         }
         
-        .geneapp-card h2 {
+        .genealorama-card h2 {
             color: #1f2937;
             font-size: 1.4em;
             margin: 0 0 25px 0;
@@ -189,15 +189,15 @@ class GeneApp_WP_Admin {
             border-bottom: 2px solid #f3f4f6;
         }
         
-        .geneapp-card h2 .dashicons {
-            color: var(--geneapp-primary);
+        .genealorama-card h2 .dashicons {
+            color: var(--genealorama-primary);
             font-size: 24px;
             width: 24px;
             height: 24px;
         }
         
         /* États de connexion */
-        .geneapp-connection-status {
+        .genealorama-connection-status {
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 25px;
@@ -208,22 +208,22 @@ class GeneApp_WP_Admin {
             border: 2px solid #e5e7eb;
         }
         
-        .geneapp-connection-status.connected {
+        .genealorama-connection-status.connected {
             background: #d1fae5;
             border-color: #6ee7b7;
         }
         
-        .geneapp-connection-status.disconnected {
+        .genealorama-connection-status.disconnected {
             background: #fee2e2;
             border-color: #fca5a5;
         }
         
-        .geneapp-connection-status.pending {
+        .genealorama-connection-status.pending {
             background: #fef3c7;
             border-color: #fcd34d;
         }
         
-        .geneapp-status-icon {
+        .genealorama-status-icon {
             font-size: 40px;
             width: 60px;
             height: 60px;
@@ -235,24 +235,24 @@ class GeneApp_WP_Admin {
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
-        .geneapp-status-content {
+        .genealorama-status-content {
             flex: 1;
         }
         
-        .geneapp-status-title {
+        .genealorama-status-title {
             font-size: 1.2em;
             font-weight: 600;
             color: #1f2937;
             margin-bottom: 5px;
         }
         
-        .geneapp-status-description {
+        .genealorama-status-description {
             color: #6b7280;
             font-size: 0.9em;
         }
         
         /* Affichage du domaine */
-        .geneapp-domain-display {
+        .genealorama-domain-display {
             background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
             padding: 25px;
             border-radius: 10px;
@@ -261,7 +261,7 @@ class GeneApp_WP_Admin {
             position: relative;
         }
         
-        .geneapp-domain-display::before {
+        .genealorama-domain-display::before {
             content: "\\f319";
             font-family: "dashicons";
             position: absolute;
@@ -272,7 +272,7 @@ class GeneApp_WP_Admin {
             color: rgba(0,0,0,0.05);
         }
         
-        .geneapp-domain-display .domain {
+        .genealorama-domain-display .domain {
             font-size: 1.5em;
             font-weight: 700;
             color: #1f2937;
@@ -283,13 +283,13 @@ class GeneApp_WP_Admin {
             margin-bottom: 5px;
         }
         
-        .geneapp-domain-display .description {
+        .genealorama-domain-display .description {
             color: #6b7280;
             font-size: 0.9em;
         }
         
-        .geneapp-badge {
-            background: var(--geneapp-warning);
+        .genealorama-badge {
+            background: var(--genealorama-warning);
             color: white;
             padding: 4px 12px;
             border-radius: 20px;
@@ -299,11 +299,11 @@ class GeneApp_WP_Admin {
         }
         
         /* Formulaires */
-        .geneapp-form-group {
+        .genealorama-form-group {
             margin-bottom: 25px;
         }
         
-        .geneapp-form-group label {
+        .genealorama-form-group label {
             display: block;
             font-weight: 600;
             color: #374151;
@@ -311,9 +311,9 @@ class GeneApp_WP_Admin {
             font-size: 14px;
         }
         
-        .geneapp-form-group input[type="text"],
-        .geneapp-form-group input[type="email"],
-        .geneapp-form-group input[type="password"] {
+        .genealorama-form-group input[type="text"],
+        .genealorama-form-group input[type="email"],
+        .genealorama-form-group input[type="password"] {
             width: 100%;
             padding: 12px 16px;
             border: 2px solid #e5e7eb;
@@ -323,40 +323,40 @@ class GeneApp_WP_Admin {
             background: #f9fafb;
         }
         
-        .geneapp-form-group input:focus {
+        .genealorama-form-group input:focus {
             outline: none;
-            border-color: var(--geneapp-primary);
+            border-color: var(--genealorama-primary);
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
             background: white;
         }
         
-        .geneapp-form-group input[readonly] {
+        .genealorama-form-group input[readonly] {
             background-color: #f3f4f6;
             color: #6b7280;
             cursor: not-allowed;
             opacity: 0.8;
         }
         
-        .geneapp-form-group .description {
+        .genealorama-form-group .description {
             color: #6b7280;
             font-size: 13px;
             margin-top: 5px;
         }
         
         /* Groupe d\'input avec bouton */
-        .geneapp-input-group {
+        .genealorama-input-group {
             display: flex;
             align-items: stretch;
             gap: 0;
         }
         
-        .geneapp-input-group input {
+        .genealorama-input-group input {
             border-top-right-radius: 0;
             border-bottom-right-radius: 0;
             border-right: none;
         }
         
-        .geneapp-input-group button {
+        .genealorama-input-group button {
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
             padding: 0 16px;
@@ -366,12 +366,12 @@ class GeneApp_WP_Admin {
             transition: all 0.2s;
         }
         
-        .geneapp-input-group button:hover {
+        .genealorama-input-group button:hover {
             background: #e5e7eb;
         }
         
         /* Boutons */
-        .geneapp-btn {
+        .genealorama-btn {
             padding: 12px 24px;
             border: none;
             border-radius: 8px;
@@ -387,7 +387,7 @@ class GeneApp_WP_Admin {
             overflow: hidden;
         }
         
-        .geneapp-btn::before {
+        .genealorama-btn::before {
             content: "";
             position: absolute;
             top: 0;
@@ -398,54 +398,54 @@ class GeneApp_WP_Admin {
             transition: left 0.3s;
         }
         
-        .geneapp-btn:hover::before {
+        .genealorama-btn:hover::before {
             left: 100%;
         }
         
-        .geneapp-btn-primary {
-            background: var(--geneapp-primary);
+        .genealorama-btn-primary {
+            background: var(--genealorama-primary);
             color: white;
         }
         
-        .geneapp-btn-primary:hover {
-            background: var(--geneapp-primary-dark);
+        .genealorama-btn-primary:hover {
+            background: var(--genealorama-primary-dark);
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
         
-        .geneapp-btn-success {
-            background: var(--geneapp-success);
+        .genealorama-btn-success {
+            background: var(--genealorama-success);
             color: white;
         }
         
-        .geneapp-btn-success:hover {
+        .genealorama-btn-success:hover {
             background: #059669;
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
         
-        .geneapp-btn-secondary {
+        .genealorama-btn-secondary {
             background: #e5e7eb;
             color: #374151;
         }
         
-        .geneapp-btn-secondary:hover {
+        .genealorama-btn-secondary:hover {
             background: #d1d5db;
         }
         
-        .geneapp-btn:disabled {
+        .genealorama-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none !important;
         }
         
-        .geneapp-btn-lg {
+        .genealorama-btn-lg {
             padding: 16px 32px;
             font-size: 16px;
         }
         
         /* Bannières d\'alerte */
-        .geneapp-alert {
+        .genealorama-alert {
             padding: 16px 20px;
             border-radius: 8px;
             margin-bottom: 20px;
@@ -467,42 +467,42 @@ class GeneApp_WP_Admin {
             }
         }
         
-        .geneapp-alert-success {
+        .genealorama-alert-success {
             background: #d1fae5;
             color: #065f46;
             border: 1px solid #6ee7b7;
         }
         
-        .geneapp-alert-warning {
+        .genealorama-alert-warning {
             background: #fef3c7;
             color: #92400e;
             border: 1px solid #fcd34d;
         }
         
-        .geneapp-alert-error {
+        .genealorama-alert-error {
             background: #fee2e2;
             color: #991b1b;
             border: 1px solid #fca5a5;
         }
         
-        .geneapp-alert-info {
+        .genealorama-alert-info {
             background: #dbeafe;
             color: #1e40af;
             border: 1px solid #93c5fd;
         }
         
         /* Spinner */
-        .geneapp-spinner {
+        .genealorama-spinner {
             display: none;
             width: 20px;
             height: 20px;
             border: 3px solid #e5e7eb;
-            border-top-color: var(--geneapp-primary);
+            border-top-color: var(--genealorama-primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
         
-        .geneapp-spinner.active {
+        .genealorama-spinner.active {
             display: inline-block;
         }
         
@@ -511,18 +511,18 @@ class GeneApp_WP_Admin {
         }
         
         /* Switch/Toggle */
-        .geneapp-switch {
+        .genealorama-switch {
             display: flex;
             align-items: center;
             gap: 12px;
             margin: 15px 0;
         }
         
-        .geneapp-switch input[type="checkbox"] {
+        .genealorama-switch input[type="checkbox"] {
             display: none;
         }
         
-        .geneapp-switch-label {
+        .genealorama-switch-label {
             position: relative;
             display: inline-block;
             width: 50px;
@@ -533,7 +533,7 @@ class GeneApp_WP_Admin {
             transition: background 0.3s;
         }
         
-        .geneapp-switch-label::after {
+        .genealorama-switch-label::after {
             content: "";
             position: absolute;
             top: 2px;
@@ -546,29 +546,29 @@ class GeneApp_WP_Admin {
             transition: transform 0.3s;
         }
         
-        .geneapp-switch input:checked + .geneapp-switch-label {
-            background: var(--geneapp-primary);
+        .genealorama-switch input:checked + .genealorama-switch-label {
+            background: var(--genealorama-primary);
         }
         
-        .geneapp-switch input:checked + .geneapp-switch-label::after {
+        .genealorama-switch input:checked + .genealorama-switch-label::after {
             transform: translateX(26px);
         }
         
-        .geneapp-switch-text {
+        .genealorama-switch-text {
             color: #374151;
             font-size: 14px;
             user-select: none;
         }
         
         /* Section utilisation */
-        .geneapp-usage-grid {
+        .genealorama-usage-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
             margin-top: 20px;
         }
         
-        .geneapp-usage-card {
+        .genealorama-usage-card {
             background: #f9fafb;
             padding: 20px;
             border-radius: 8px;
@@ -576,21 +576,21 @@ class GeneApp_WP_Admin {
             text-align: center;
         }
         
-        .geneapp-usage-card .dashicons {
+        .genealorama-usage-card .dashicons {
             font-size: 40px;
             width: 40px;
             height: 40px;
-            color: var(--geneapp-primary);
+            color: var(--genealorama-primary);
             margin: 0 auto 15px;
         }
         
-        .geneapp-usage-card h4 {
+        .genealorama-usage-card h4 {
             color: #1f2937;
             margin: 0 0 10px 0;
             font-size: 1.1em;
         }
         
-        .geneapp-usage-card code {
+        .genealorama-usage-card code {
             background: #374151;
             color: #f3f4f6;
             padding: 8px 16px;
@@ -601,7 +601,7 @@ class GeneApp_WP_Admin {
         }
         
         /* Info box */
-        .geneapp-info-box {
+        .genealorama-info-box {
             background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
             border: 1px solid #c4b5fd;
             padding: 20px;
@@ -609,7 +609,7 @@ class GeneApp_WP_Admin {
             margin-top: 20px;
         }
         
-        .geneapp-info-box h4 {
+        .genealorama-info-box h4 {
             color: #5b21b6;
             margin: 0 0 10px 0;
             display: flex;
@@ -617,18 +617,18 @@ class GeneApp_WP_Admin {
             gap: 8px;
         }
         
-        .geneapp-info-box ul {
+        .genealorama-info-box ul {
             margin: 0;
             padding-left: 20px;
             color: #6b21a8;
         }
         
-        .geneapp-info-box li {
+        .genealorama-info-box li {
             margin-bottom: 8px;
         }
         
         /* Actions footer */
-        .geneapp-actions-footer {
+        .genealorama-actions-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -639,28 +639,28 @@ class GeneApp_WP_Admin {
         
         /* Responsive */
         @media (max-width: 768px) {
-            .geneapp-admin-wrap {
+            .genealorama-admin-wrap {
                 margin: 10px;
             }
             
-            .geneapp-header {
+            .genealorama-header {
                 padding: 25px;
             }
             
-            .geneapp-header h1 {
+            .genealorama-header h1 {
                 font-size: 1.8em;
             }
             
-            .geneapp-card {
+            .genealorama-card {
                 padding: 20px;
             }
             
-            .geneapp-connection-status {
+            .genealorama-connection-status {
                 flex-direction: column;
                 text-align: center;
             }
             
-            .geneapp-actions-footer {
+            .genealorama-actions-footer {
                 flex-direction: column;
                 gap: 15px;
             }
@@ -691,11 +691,11 @@ class GeneApp_WP_Admin {
     }
     
     /**
-     * Valider les identifiants auprès de l'API GeneApp
+     * Validate credentials with Genealorama API
      */
     public function validate_credentials() {
-        $partner_id = get_option('geneapp_partner_id');
-        $partner_secret = get_option('geneapp_partner_secret');
+        $partner_id = get_option('genealorama_partner_id');
+        $partner_secret = get_option('genealorama_partner_secret');
         
         if (empty($partner_id) || empty($partner_secret)) {
             return false;
@@ -705,8 +705,8 @@ class GeneApp_WP_Admin {
         $is_valid = true;
         
         // Mettre à jour les métadonnées
-        update_option('geneapp_last_validation_date', current_time('timestamp'));
-        update_option('geneapp_last_validation_status', $is_valid ? 'valid' : 'invalid');
+        update_option('genealorama_last_validation_date', current_time('timestamp'));
+        update_option('genealorama_last_validation_status', $is_valid ? 'valid' : 'invalid');
         
         return $is_valid;
     }
@@ -715,15 +715,15 @@ class GeneApp_WP_Admin {
      * Gestionnaire AJAX pour valider les identifiants
      */
     public function ajax_validate_credentials() {
-        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'geneapp_validate_nonce')) {
-            wp_send_json_error(array('message' => 'Erreur de sécurité'));
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'genealorama_validate_nonce')) {
+            wp_send_json_error(array('message' => 'Security error'));
         }
         
         $is_valid = $this->validate_credentials();
         
         wp_send_json_success(array(
             'valid' => $is_valid,
-            'message' => $is_valid ? 'Identifiants valides' : 'Identifiants invalides',
+            'message' => $is_valid ? 'Valid credentials' : 'Invalid credentials',
             'last_check' => $this->get_formatted_validation_date()
         ));
     }
@@ -732,7 +732,7 @@ class GeneApp_WP_Admin {
      * Formater la date de validation
      */
     private function get_formatted_validation_date() {
-        $timestamp = get_option('geneapp_last_validation_date');
+        $timestamp = get_option('genealorama_last_validation_date');
         if (!$timestamp) {
             return 'Jamais';
         }
@@ -757,27 +757,27 @@ class GeneApp_WP_Admin {
      */
     public function ajax_get_credentials() {
         // Vérifier le nonce
-        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'geneapp_auto_credentials')) {
-            wp_send_json_error(array('message' => 'Erreur de sécurité, veuillez rafraîchir la page.'));
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'genealorama_auto_credentials')) {
+            wp_send_json_error(array('message' => 'Security error, please refresh the page.'));
         }
         
         // Récupérer automatiquement le domaine
         $domain = $this->get_site_domain();
         
         if ($this->is_development_environment()) {
-            wp_send_json_error(array('message' => 'Les sites en développement local ne peuvent pas être enregistrés. Veuillez déployer votre site sur un domaine public.'));
+            wp_send_json_error(array('message' => 'Local development sites cannot be registered. Please deploy your site to a public domain.'));
         }
         
         // Vérifier l'email
         if (empty($_POST['email'])) {
-            wp_send_json_error(array('message' => 'Email manquant.'));
+            wp_send_json_error(array('message' => 'Email missing.'));
         }
         
         $email = sanitize_email(wp_unslash($_POST['email']));
         $partner_id = $domain;
         
         // Contacter l'API Cloudflare Worker
-        $response = wp_remote_post('https://partner.genealogie.app/register', array(
+        $response = wp_remote_post('https://partner-registration.genealogie.app/register', array(
             'headers' => array(
                 'Content-Type' => 'application/json',
                 'Origin' => get_site_url(),
@@ -795,24 +795,24 @@ class GeneApp_WP_Admin {
         ));
         
         if (is_wp_error($response)) {
-            wp_send_json_error(array('message' => 'Erreur de connexion : ' . $response->get_error_message()));
+            wp_send_json_error(array('message' => 'Connection error: ' . $response->get_error_message()));
         }
         
         $body = json_decode(wp_remote_retrieve_body($response), true);
         
         if (wp_remote_retrieve_response_code($response) !== 200 && wp_remote_retrieve_response_code($response) !== 201) {
-            $error_message = isset($body['message']) ? $body['message'] : 'Erreur inconnue lors de la récupération des identifiants.';
+            $error_message = isset($body['message']) ? $body['message'] : 'Unknown error while retrieving credentials.';
             wp_send_json_error(array('message' => $error_message));
         }
         
         // Sauvegarder les identifiants
-        update_option('geneapp_partner_id', $body['partner_id']);
-        update_option('geneapp_partner_secret', $body['partner_secret']);
-        update_option('geneapp_partner_domain', $domain);
+        update_option('genealorama_partner_id', $body['partner_id']);
+        update_option('genealorama_partner_secret', $body['partner_secret']);
+        update_option('genealorama_partner_domain', $domain);
         
         // Marquer comme validés
-        update_option('geneapp_last_validation_date', current_time('timestamp'));
-        update_option('geneapp_last_validation_status', 'valid');
+        update_option('genealorama_last_validation_date', current_time('timestamp'));
+        update_option('genealorama_last_validation_status', 'valid');
         
         // Succès
         wp_send_json_success(array(
@@ -828,16 +828,16 @@ class GeneApp_WP_Admin {
      * Gestionnaire AJAX pour sauvegarder les options d'affichage
      */
     public function ajax_save_display_options() {
-        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'geneapp_display_options')) {
-            wp_send_json_error(array('message' => 'Erreur de sécurité'));
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'genealorama_display_options')) {
+            wp_send_json_error(array('message' => 'Security error'));
         }
         
         // Sauvegarder l'option hauteur automatique
         $auto_height = isset($_POST['auto_height']) && $_POST['auto_height'] === 'true';
-        update_option('geneapp_iframe_auto_height', $auto_height);
+        update_option('genealorama_iframe_auto_height', $auto_height);
         
         wp_send_json_success(array(
-            'message' => 'Options d\'affichage enregistrées',
+            'message' => 'Display options saved',
             'auto_height' => $auto_height
         ));
     }
@@ -846,7 +846,7 @@ class GeneApp_WP_Admin {
      * Ajouter le lien "Paramètres" dans la liste des plugins
      */
     public function add_settings_link($links) {
-        $settings_link = '<a href="' . admin_url('options-general.php?page=geneapp-wp-settings') . '">' . __('Paramètres', 'geneapp-wp') . '</a>';
+        $settings_link = '<a href="' . admin_url('options-general.php?page=secure-iframe-embed-for-genealorama-settings') . '">' . __('Settings', 'secure-iframe-embed-for-genealorama') . '</a>';
         array_unshift($links, $settings_link);
         return $links;
     }
@@ -856,10 +856,10 @@ class GeneApp_WP_Admin {
      */
     public function add_admin_menu() {
         add_options_page(
-            'Paramètres GeneApp',
-            'GeneApp',
+            'Genealorama Settings',
+            'Genealorama',
             'manage_options',
-            'geneapp-wp-settings',
+            'secure-iframe-embed-for-genealorama-settings',
             array($this, 'settings_page')
         );
     }
@@ -868,23 +868,23 @@ class GeneApp_WP_Admin {
      * Enregistrer les paramètres
      */
     public function register_settings() {
-        register_setting('geneapp_wp_settings', 'geneapp_partner_id', array(
+        register_setting('genealorama_wp_settings', 'genealorama_partner_id', array(
             'sanitize_callback' => 'sanitize_text_field',
         ));
-        register_setting('geneapp_wp_settings', 'geneapp_partner_secret', array(
+        register_setting('genealorama_wp_settings', 'genealorama_partner_secret', array(
             'sanitize_callback' => 'sanitize_text_field',
         ));
-        register_setting('geneapp_wp_settings', 'geneapp_partner_domain', array(
+        register_setting('genealorama_wp_settings', 'genealorama_partner_domain', array(
             'sanitize_callback' => 'sanitize_text_field',
         ));
-        register_setting('geneapp_wp_settings', 'geneapp_iframe_auto_height', array(
+        register_setting('genealorama_wp_settings', 'genealorama_iframe_auto_height', array(
             'type' => 'boolean',
             'sanitize_callback' => 'rest_sanitize_boolean',
         ));
-        register_setting('geneapp_wp_settings', 'geneapp_last_validation_date', array(
+        register_setting('genealorama_wp_settings', 'genealorama_last_validation_date', array(
             'sanitize_callback' => 'absint',
         ));
-        register_setting('geneapp_wp_settings', 'geneapp_last_validation_status', array(
+        register_setting('genealorama_wp_settings', 'genealorama_last_validation_status', array(
             'sanitize_callback' => 'sanitize_text_field',
         ));
     }
@@ -893,9 +893,9 @@ class GeneApp_WP_Admin {
      * Obtenir l'état de connexion
      */
     private function get_connection_status() {
-        $has_credentials = !empty(get_option('geneapp_partner_id')) && !empty(get_option('geneapp_partner_secret'));
-        $validation_status = get_option('geneapp_last_validation_status');
-        $saved_domain = get_option('geneapp_partner_domain', '');
+        $has_credentials = !empty(get_option('genealorama_partner_id')) && !empty(get_option('genealorama_partner_secret'));
+        $validation_status = get_option('genealorama_last_validation_status');
+        $saved_domain = get_option('genealorama_partner_domain', '');
         $current_domain = $this->get_site_domain();
         $domain_changed = !empty($saved_domain) && $saved_domain !== $current_domain;
         
@@ -919,148 +919,148 @@ class GeneApp_WP_Admin {
         // Récupérer les données
         $current_domain = $this->get_site_domain();
         $is_dev = $this->is_development_environment();
-        $has_credentials = !empty(get_option('geneapp_partner_id')) && !empty(get_option('geneapp_partner_secret'));
-        $last_validation = get_option('geneapp_last_validation_date');
-        $validation_status = get_option('geneapp_last_validation_status');
-        $saved_domain = get_option('geneapp_partner_domain', '');
+        $has_credentials = !empty(get_option('genealorama_partner_id')) && !empty(get_option('genealorama_partner_secret'));
+        $last_validation = get_option('genealorama_last_validation_date');
+        $validation_status = get_option('genealorama_last_validation_status');
+        $saved_domain = get_option('genealorama_partner_domain', '');
         $domain_changed = !empty($saved_domain) && $saved_domain !== $current_domain;
         $connection_status = $this->get_connection_status();
-        $auto_height = get_option('geneapp_iframe_auto_height', true);
+        $auto_height = get_option('genealorama_iframe_auto_height', true);
         ?>
         
-        <div class="wrap geneapp-admin-wrap">
-            <!-- En-tête -->
-            <div class="geneapp-header">
-                <h1><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-tree')); ?>"></span> GeneApp pour WordPress</h1>
-                <p>Avec GeneApp, vous offrez aux visiteurs de votre site une expérience généalogique interactive unique basée sur leurs fichiers GEDCOM.</p>
+        <div class="wrap genealorama-admin-wrap">
+            <!-- Header -->
+            <div class="genealorama-header">
+                <h1><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-tree')); ?>"></span> Genealorama for WordPress</h1>
+                <p>With Genealorama, you offer your site visitors a unique interactive genealogical experience based on their GEDCOM files.</p>
             </div>
             
             <?php
-            // Message de succès après action
+            // Success message after action
             // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             if (isset($_GET['settings-updated']) && $_GET['settings-updated'] == 'true') {
-                echo '<div class="geneapp-alert geneapp-alert-success">
+                echo '<div class="genealorama-alert genealorama-alert-success">
                     <span class="dashicons ' . esc_attr($this->get_icon_class('fa-check-circle')) . '"></span>
                     <div>
-                        <strong>Succès !</strong> Vos paramètres ont été enregistrés.
+                        <strong>Success!</strong> Your settings have been saved.
                     </div>
                 </div>';
             }
             ?>
             
-            <!-- Grille principale -->
-            <div class="geneapp-grid">
+            <!-- Main grid -->
+            <div class="genealorama-grid">
                 <!-- Carte État de connexion -->
-                <div class="geneapp-card">
-                    <h2><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-plug')); ?>"></span> État de connexion</h2>
+                <div class="genealorama-card">
+                    <h2><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-plug')); ?>"></span> Connection Status</h2>
                     
                     <?php if ($connection_status === 'connected'): ?>
-                    <div class="geneapp-connection-status connected">
-                        <div class="geneapp-status-icon">
-                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-check-circle')); ?>" style="color: var(--geneapp-success);"></span>
+                    <div class="genealorama-connection-status connected">
+                        <div class="genealorama-status-icon">
+                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-check-circle')); ?>" style="color: var(--genealorama-success);"></span>
                         </div>
-                        <div class="geneapp-status-content">
-                            <div class="geneapp-status-title">Connecté à GeneApp</div>
-                            <div class="geneapp-status-description">
-                                Dernière vérification : <?php echo esc_html($this->get_formatted_validation_date()); ?>
+                        <div class="genealorama-status-content">
+                            <div class="genealorama-status-title">Connected to Genealorama</div>
+                            <div class="genealorama-status-description">
+                                Last check: <?php echo esc_html($this->get_formatted_validation_date()); ?>
                             </div>
                         </div>
                     </div>
                     <?php elseif ($connection_status === 'pending'): ?>
-                    <div class="geneapp-connection-status pending">
-                        <div class="geneapp-status-icon">
-                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-exclamation-circle')); ?>" style="color: var(--geneapp-warning);"></span>
+                    <div class="genealorama-connection-status pending">
+                        <div class="genealorama-status-icon">
+                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-exclamation-circle')); ?>" style="color: var(--genealorama-warning);"></span>
                         </div>
-                        <div class="geneapp-status-content">
-                            <div class="geneapp-status-title">En attente de validation</div>
-                            <div class="geneapp-status-description">
-                                Les identifiants doivent être validés
+                        <div class="genealorama-status-content">
+                            <div class="genealorama-status-title">Waiting for validation</div>
+                            <div class="genealorama-status-description">
+                                Credentials need to be validated
                             </div>
                         </div>
                     </div>
                     <?php else: ?>
-                    <div class="geneapp-connection-status disconnected">
-                        <div class="geneapp-status-icon">
-                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-times-circle')); ?>" style="color: var(--geneapp-error);"></span>
+                    <div class="genealorama-connection-status disconnected">
+                        <div class="genealorama-status-icon">
+                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-times-circle')); ?>" style="color: var(--genealorama-error);"></span>
                         </div>
-                        <div class="geneapp-status-content">
-                            <div class="geneapp-status-title">Non connecté</div>
-                            <div class="geneapp-status-description">
-                                <?php echo $domain_changed ? 'Le domaine a changé' : 'Configuration requise'; ?>
+                        <div class="genealorama-status-content">
+                            <div class="genealorama-status-title">Not connected</div>
+                            <div class="genealorama-status-description">
+                                <?php echo $domain_changed ? 'Domain has changed' : 'Configuration required'; ?>
                             </div>
                         </div>
                     </div>
                     <?php endif; ?>
                     
-                    <!-- Domaine -->
-                    <div class="geneapp-domain-display">
+                    <!-- Domain -->
+                    <div class="genealorama-domain-display">
                         <div class="domain">
                             <?php echo esc_html($current_domain); ?>
                             <?php if ($is_dev): ?>
-                            <span class="geneapp-badge">Dev</span>
+                            <span class="genealorama-badge">Dev</span>
                             <?php endif; ?>
                         </div>
                         <div class="description">
-                            Domaine détecté automatiquement
+                            Automatically detected domain
                         </div>
                     </div>
                     
                     <?php if ($domain_changed): ?>
-                    <div class="geneapp-alert geneapp-alert-error">
+                    <div class="genealorama-alert genealorama-alert-error">
                         <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-exclamation-triangle')); ?>"></span>
                         <div>
-                            <strong>Domaine modifié !</strong><br>
-                            Ancien : <code><?php echo esc_html($saved_domain); ?></code><br>
-                            Nouveau : <code><?php echo esc_html($current_domain); ?></code>
+                            <strong>Domain changed!</strong><br>
+                            Old: <code><?php echo esc_html($saved_domain); ?></code><br>
+                            New: <code><?php echo esc_html($current_domain); ?></code>
                         </div>
                     </div>
                     <?php endif; ?>
                     
                     <?php if ($is_dev): ?>
-                    <div class="geneapp-alert geneapp-alert-warning">
+                    <div class="genealorama-alert genealorama-alert-warning">
                         <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-laptop-code')); ?>"></span>
                         <div>
-                            <strong>Environnement de développement</strong><br>
-                            Les sites locaux ne peuvent pas être connectés à GeneApp.
+                            <strong>Development environment</strong><br>
+                            Local sites cannot be connected to Genealorama.
                         </div>
                     </div>
                     <?php elseif (!$has_credentials || $domain_changed): ?>
-                    <!-- Formulaire de connexion -->
-                    <div class="geneapp-form-group">
-                        <label for="geneapp_email">
-                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-envelope')); ?>"></span> Email administrateur
+                    <!-- Connection form -->
+                    <div class="genealorama-form-group">
+                        <label for="genealorama_email">
+                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-envelope')); ?>"></span> Administrator Email
                         </label>
                         <input type="email" 
-                               id="geneapp_email" 
+                               id="genealorama_email" 
                                placeholder="votre@email.com" 
                                value="<?php echo esc_attr(wp_get_current_user()->user_email); ?>">
-                        <div class="description">Utilisé pour créer votre compte partenaire</div>
+                        <div class="description">Used to create your partner account</div>
                     </div>
                     
                     <button type="button" 
-                            class="geneapp-btn geneapp-btn-primary geneapp-btn-lg" 
-                            id="geneapp-connect-btn"
+                            class="genealorama-btn genealorama-btn-primary genealorama-btn-lg" 
+                            id="genealorama-connect-btn"
                             style="width: 100%;">
                         <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-link')); ?>"></span>
-                        Connecter à GeneApp
+                        Connect to Genealorama
                     </button>
                     <?php else: ?>
-                    <!-- Identifiants actuels -->
-                    <div class="geneapp-form-group">
+                    <!-- Current credentials -->
+                    <div class="genealorama-form-group">
                         <label>
-                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-fingerprint')); ?>"></span> Identifiant partenaire
+                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-fingerprint')); ?>"></span> Partner ID
                         </label>
-                        <input type="text" value="<?php echo esc_attr(get_option('geneapp_partner_id')); ?>" readonly>
+                        <input type="text" value="<?php echo esc_attr(get_option('genealorama_partner_id')); ?>" readonly>
                     </div>
                     
-                    <div class="geneapp-form-group">
+                    <div class="genealorama-form-group">
                         <label>
-                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-key')); ?>"></span> Clé secrète
+                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-key')); ?>"></span> Secret Key
                         </label>
-                        <div class="geneapp-input-group">
+                        <div class="genealorama-input-group">
                             <input type="password" 
-                                   id="geneapp_partner_secret_display" 
-                                   value="<?php echo esc_attr(get_option('geneapp_partner_secret')); ?>" 
+                                   id="genealorama_partner_secret_display" 
+                                   value="<?php echo esc_attr(get_option('genealorama_partner_secret')); ?>" 
                                    readonly>
                             <button type="button" id="toggle-secret">
                                 <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-eye')); ?>"></span>
@@ -1068,110 +1068,110 @@ class GeneApp_WP_Admin {
                         </div>
                     </div>
                     
-                    <div class="geneapp-actions-footer">
+                    <div class="genealorama-actions-footer">
                         <button type="button" 
-                                class="geneapp-btn geneapp-btn-secondary" 
-                                id="geneapp-validate-btn">
+                                class="genealorama-btn genealorama-btn-secondary" 
+                                id="genealorama-validate-btn">
                             <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-sync-alt')); ?>"></span>
-                            Valider la connexion
+                            Validate Connection
                         </button>
-                        <div class="geneapp-spinner" id="validate-spinner"></div>
+                        <div class="genealorama-spinner" id="validate-spinner"></div>
                     </div>
                     <?php endif; ?>
                     
-                    <!-- Spinner et messages -->
+                    <!-- Spinner and messages -->
                     <div id="connection-message" style="margin-top: 20px;"></div>
-                    <div class="geneapp-spinner" id="connection-spinner" style="margin: 20px auto; display: none;"></div>
+                    <div class="genealorama-spinner" id="connection-spinner" style="margin: 20px auto; display: none;"></div>
                 </div>
                 
-                <!-- Carte Options d'affichage -->
-                <div class="geneapp-card">
-                    <h2><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-sliders-h')); ?>"></span> Options d'affichage</h2>
+                <!-- Display options card -->
+                <div class="genealorama-card">
+                    <h2><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-sliders-h')); ?>"></span> Display Options</h2>
                     
                     <p style="color: #6b7280; margin-bottom: 20px;">
-                        Personnalisez l'affichage de GeneApp sur votre site
+                        Customize Genealorama display on your site
                     </p>
                     
-                    <div class="geneapp-switch">
+                    <div class="genealorama-switch">
                         <input type="checkbox" 
                                id="auto_height_option" 
                                <?php checked($auto_height); ?>>
-                        <label for="auto_height_option" class="geneapp-switch-label"></label>
-                        <label for="auto_height_option" class="geneapp-switch-text">
-                            Ajustement automatique de la hauteur
+                        <label for="auto_height_option" class="genealorama-switch-label"></label>
+                        <label for="auto_height_option" class="genealorama-switch-text">
+                            Automatic height adjustment
                         </label>
                     </div>
                     
                     <p style="color: #6b7280; font-size: 13px; margin-top: 10px;">
-                        Permet à l'iframe de s'adapter automatiquement au contenu
+                        Allows the iframe to automatically adapt to content
                     </p>
                     
-                    <div class="geneapp-info-box">
-                        <h4><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-lightbulb')); ?>"></span> Options du shortcode</h4>
-                        <p style="margin: 10px 0;">Vous pouvez personnaliser chaque intégration :</p>
+                    <div class="genealorama-info-box">
+                        <h4><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-lightbulb')); ?>"></span> Shortcode Options</h4>
+                        <p style="margin: 10px 0;">You can customize each integration:</p>
                         <ul style="margin: 0;">
                             <li><code>auto_height="true|false"</code></li>
                             <li><code>fullscreen="true|false"</code></li>
                         </ul>
                     </div>
                     
-                    <div class="geneapp-actions-footer">
+                    <div class="genealorama-actions-footer">
                         <button type="button" 
-                                class="geneapp-btn geneapp-btn-success" 
+                                class="genealorama-btn genealorama-btn-success" 
                                 id="save-display-options"
                                 <?php echo !$has_credentials ? 'disabled' : ''; ?>>
                             <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-save')); ?>"></span>
-                            Enregistrer les options
+                            Save Options
                         </button>
-                        <div class="geneapp-spinner" id="options-spinner"></div>
+                        <div class="genealorama-spinner" id="options-spinner"></div>
                     </div>
                 </div>
             </div>
             
-            <!-- Section Utilisation -->
-            <div class="geneapp-card full-width">
-                <h2><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-rocket')); ?>"></span> Comment utiliser GeneApp</h2>
+            <!-- Usage Section -->
+            <div class="genealorama-card full-width">
+                <h2><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-rocket')); ?>"></span> How to use Genealorama</h2>
                 
-                <div class="geneapp-usage-grid">
-                    <div class="geneapp-usage-card">
+                <div class="genealorama-usage-grid">
+                    <div class="genealorama-usage-card">
                         <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-code')); ?>"></span>
                         <h4>Shortcode</h4>
-                        <p>Insérez GeneApp n'importe où</p>
-                        <code>[geneapp_embed]</code>
+                        <p>Insert Genealorama anywhere</p>
+                        <code>[genealorama_embed]</code>
                     </div>
                     
-                    <div class="geneapp-usage-card">
+                    <div class="genealorama-usage-card">
                         <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-file-alt')); ?>"></span>
-                        <h4>Page dédiée</h4>
-                        <p>Une page a été créée automatiquement</p>
-                        <a href="<?php echo esc_url(get_permalink(get_page_by_path('geneapp'))); ?>" 
+                        <h4>Dedicated Page</h4>
+                        <p>A page has been created automatically</p>
+                        <a href="<?php echo esc_url(get_permalink(get_page_by_path('genealorama'))); ?>" 
                            target="_blank" 
-                           class="geneapp-btn geneapp-btn-secondary" 
+                           class="genealorama-btn genealorama-btn-secondary" 
                            style="margin-top: 10px;">
-                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-external-link-alt')); ?>"></span> Voir la page
+                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-external-link-alt')); ?>"></span> View Page
                         </a>
                     </div>
                     
-                    <div class="geneapp-usage-card">
+                    <div class="genealorama-usage-card">
                         <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-puzzle-piece')); ?>"></span>
                         <h4>Widget</h4>
-                        <p>Ajoutez GeneApp dans vos widgets</p>
-                        <small style="color: #9ca3af;">Bientôt disponible</small>
+                        <p>Add Genealorama to your widgets</p>
+                        <small style="color: #9ca3af;">Coming soon</small>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- Nonces WordPress -->
-        <?php wp_nonce_field('geneapp_auto_credentials', 'geneapp_credentials_nonce'); ?>
-        <?php wp_nonce_field('geneapp_validate_nonce', 'geneapp_validate_nonce_field'); ?>
-        <?php wp_nonce_field('geneapp_display_options', 'geneapp_display_nonce'); ?>
+        <!-- WordPress Nonces -->
+        <?php wp_nonce_field('genealorama_auto_credentials', 'genealorama_credentials_nonce'); ?>
+        <?php wp_nonce_field('genealorama_validate_nonce', 'genealorama_validate_nonce_field'); ?>
+        <?php wp_nonce_field('genealorama_display_options', 'genealorama_display_nonce'); ?>
         
         <script>
         jQuery(document).ready(function($) {
             // Toggle secret visibility
             $('#toggle-secret').on('click', function() {
-                const input = $('#geneapp_partner_secret_display');
+                const input = $('#genealorama_partner_secret_display');
                 const icon = $(this).find('span.dashicons');
                 
                 if (input.attr('type') === 'password') {
@@ -1183,11 +1183,11 @@ class GeneApp_WP_Admin {
                 }
             });
             
-            // Connexion à GeneApp
-            $('#geneapp-connect-btn').on('click', function() {
-                const email = $('#geneapp_email').val();
+            // Connect to Genealorama
+            $('#genealorama-connect-btn').on('click', function() {
+                const email = $('#genealorama_email').val();
                 if (!email) {
-                    showMessage('connection-message', 'error', 'Veuillez saisir votre email.');
+                    showMessage('connection-message', 'error', 'Please enter your email.');
                     return;
                 }
                 
@@ -1201,14 +1201,14 @@ class GeneApp_WP_Admin {
                     url: ajaxurl,
                     type: 'POST',
                     data: {
-                        action: 'geneapp_get_credentials',
-                        nonce: $('#geneapp_credentials_nonce').val(),
+                        action: 'genealorama_get_credentials',
+                        nonce: $('#genealorama_credentials_nonce').val(),
                         email: email
                     },
                     success: function(response) {
                         if (response.success) {
                             showMessage('connection-message', 'success', 
-                                'Connexion réussie ! Rechargement de la page...');
+                                'Connection successful! Reloading page...');
                             setTimeout(() => location.reload(), 1500);
                         } else {
                             showMessage('connection-message', 'error', response.data.message);
@@ -1216,7 +1216,7 @@ class GeneApp_WP_Admin {
                     },
                     error: function() {
                         showMessage('connection-message', 'error', 
-                            'Erreur de connexion au serveur.');
+                            'Server connection error.');
                     },
                     complete: function() {
                         $btn.prop('disabled', false);
@@ -1225,8 +1225,8 @@ class GeneApp_WP_Admin {
                 });
             });
             
-            // Validation des identifiants
-            $('#geneapp-validate-btn').on('click', function() {
+            // Credential validation
+            $('#genealorama-validate-btn').on('click', function() {
                 const $btn = $(this);
                 const $spinner = $('#validate-spinner');
                 
@@ -1237,13 +1237,13 @@ class GeneApp_WP_Admin {
                     url: ajaxurl,
                     type: 'POST',
                     data: {
-                        action: 'geneapp_validate_credentials',
-                        nonce: $('#geneapp_validate_nonce_field').val()
+                        action: 'genealorama_validate_credentials',
+                        nonce: $('#genealorama_validate_nonce_field').val()
                     },
                     success: function(response) {
                         if (response.success) {
                             showMessage('connection-message', 'success', 
-                                'Connexion validée avec succès !');
+                                'Connection validated successfully!');
                             setTimeout(() => location.reload(), 1500);
                         }
                     },
@@ -1254,7 +1254,7 @@ class GeneApp_WP_Admin {
                 });
             });
             
-            // Sauvegarde des options d'affichage
+            // Save display options
             $('#save-display-options').on('click', function() {
                 const $btn = $(this);
                 const $spinner = $('#options-spinner');
@@ -1266,8 +1266,8 @@ class GeneApp_WP_Admin {
                     url: ajaxurl,
                     type: 'POST',
                     data: {
-                        action: 'geneapp_save_display_options',
-                        nonce: $('#geneapp_display_nonce').val(),
+                        action: 'genealorama_save_display_options',
+                        nonce: $('#genealorama_display_nonce').val(),
                         auto_height: $('#auto_height_option').is(':checked')
                     },
                     success: function(response) {
@@ -1282,7 +1282,7 @@ class GeneApp_WP_Admin {
                 });
             });
             
-            // Fonction pour afficher les messages
+            // Function to display messages
             function showMessage(containerId, type, message) {
                 const iconMap = {
                     'success': '<?php echo esc_js($this->get_icon_class('fa-check-circle')); ?>',
@@ -1292,7 +1292,7 @@ class GeneApp_WP_Admin {
                 };
                 
                 const html = `
-                    <div class="geneapp-alert geneapp-alert-${type}">
+                    <div class="genealorama-alert genealorama-alert-${type}">
                         <span class="dashicons ${iconMap[type]}"></span>
                         <div>${message}</div>
                     </div>
@@ -1301,10 +1301,10 @@ class GeneApp_WP_Admin {
                 $('#' + containerId).html(html);
             }
             
-            // Validation auto au chargement si nécessaire
+            // Auto validation on load if necessary
             <?php if ($has_credentials && !$last_validation && !$domain_changed): ?>
             setTimeout(function() {
-                $('#geneapp-validate-btn').trigger('click');
+                $('#genealorama-validate-btn').trigger('click');
             }, 1000);
             <?php endif; ?>
         });
@@ -1313,5 +1313,4 @@ class GeneApp_WP_Admin {
     }
 }
 
-// Initialiser la classe d'administration
-$geneapp_wp_admin = new GeneApp_WP_Admin();
+// La classe est instanciée dans le fichier principal genealorama.php
