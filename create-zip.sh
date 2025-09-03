@@ -1,62 +1,44 @@
 #!/bin/bash
 
-# Créer le ZIP du plugin GeneApp-WP
-# La version est extraite automatiquement depuis geneapp-wp.php
+# Create ZIP for Secure Iframe Embed for Genealorama plugin
+# Version is automatically extracted from genealorama.php
 cd /Users/Frank/Documents/GitHub/geneapp-wp
 
-# Extraire la version depuis geneapp-wp.php
-VERSION=$(grep -E "^[[:space:]]*\*[[:space:]]*Version:[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+" geneapp-wp.php | sed -E 's/.*Version:[[:space:]]*([0-9.]+).*/\1/')
+# Extract version from genealorama.php
+VERSION=$(grep -E "^[[:space:]]*\*[[:space:]]*Version:[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+" genealorama.php | sed -E 's/.*Version:[[:space:]]*([0-9.]+).*/\1/')
 
-# Créer un répertoire temporaire
-TEMP_DIR="/tmp/geneapp-wp-build"
+# Create temporary directory
+TEMP_DIR="/tmp/genealorama-build"
 rm -rf $TEMP_DIR
-mkdir -p $TEMP_DIR/geneapp-wp
-mkdir -p $TEMP_DIR/geneapp-wp/includes
-mkdir -p $TEMP_DIR/geneapp-wp/assets/css
-mkdir -p $TEMP_DIR/geneapp-wp/templates
+mkdir -p $TEMP_DIR/secure-iframe-embed-for-genealorama
+mkdir -p $TEMP_DIR/secure-iframe-embed-for-genealorama/includes
+mkdir -p $TEMP_DIR/secure-iframe-embed-for-genealorama/assets
+mkdir -p $TEMP_DIR/secure-iframe-embed-for-genealorama/templates
 
-# Copier les fichiers
-cp geneapp-wp.php $TEMP_DIR/geneapp-wp/
-cp LICENSE $TEMP_DIR/geneapp-wp/
-cp CHANGELOG.md $TEMP_DIR/geneapp-wp/
-cp includes/admin-settings.php $TEMP_DIR/geneapp-wp/includes/
-cp includes/signature.php $TEMP_DIR/geneapp-wp/includes/
+# Copy files
+cp genealorama.php $TEMP_DIR/secure-iframe-embed-for-genealorama/
+cp LICENSE $TEMP_DIR/secure-iframe-embed-for-genealorama/
+cp CHANGELOG.md $TEMP_DIR/secure-iframe-embed-for-genealorama/
+cp includes/admin-settings.php $TEMP_DIR/secure-iframe-embed-for-genealorama/includes/
+cp includes/signature.php $TEMP_DIR/secure-iframe-embed-for-genealorama/includes/
+cp -r assets $TEMP_DIR/secure-iframe-embed-for-genealorama/ 2>/dev/null || true
 
-# Convertir readme.md en readme.txt au format WordPress
-cat > $TEMP_DIR/geneapp-wp/readme.txt << EOF
-=== GeneApp-WP ===
-Contributors: fbracq
-Tags: genealogy, iframe, integration, family tree, geneapp
-Requires at least: 5.0
-Tested up to: 6.8
-Stable tag: $VERSION
-Requires PHP: 7.2
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
+# Copy existing readme.txt file
+cp readme.txt $TEMP_DIR/secure-iframe-embed-for-genealorama/
 
-Intégration sécurisée de GeneApp dans WordPress avec authentification et page dédiée automatique.
-
-EOF
-
-# Ajouter le contenu du readme.md
-echo "" >> $TEMP_DIR/geneapp-wp/readme.txt
-echo "== Description ==" >> $TEMP_DIR/geneapp-wp/readme.txt
-echo "" >> $TEMP_DIR/geneapp-wp/readme.txt
-tail -n +12 readme.md >> $TEMP_DIR/geneapp-wp/readme.txt
-
-# Créer le ZIP
+# Create ZIP
 cd $TEMP_DIR
-ZIP_NAME="geneapp-wp-v${VERSION}.zip"
-zip -r $ZIP_NAME geneapp-wp/
+ZIP_NAME="secure-iframe-embed-for-genealorama-v${VERSION}.zip"
+zip -r $ZIP_NAME secure-iframe-embed-for-genealorama/
 
-# Copier le ZIP dans le dossier d'origine
+# Copy ZIP to original folder
 cp $ZIP_NAME /Users/Frank/Documents/GitHub/geneapp-wp/
 
-# Afficher le contenu
-echo "✅ ZIP créé : /Users/Frank/Documents/GitHub/geneapp-wp/$ZIP_NAME"
+# Display content
+echo "✅ ZIP created: /Users/Frank/Documents/GitHub/geneapp-wp/$ZIP_NAME"
 echo ""
-echo "📦 Contenu du ZIP :"
+echo "📦 ZIP contents:"
 unzip -l $ZIP_NAME
 
-# Nettoyer
+# Clean up
 rm -rf $TEMP_DIR

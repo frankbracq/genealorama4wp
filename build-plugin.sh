@@ -1,62 +1,46 @@
 #!/bin/bash
 
-# Script pour créer le ZIP du plugin GeneApp-WP
-# La version est extraite automatiquement depuis geneapp-wp.php
+# Script to create ZIP for Secure Iframe Embed for Genealorama plugin
+# Version is automatically extracted from genealorama.php
 
-PLUGIN_NAME="geneapp-wp"
-# Extraire la version depuis geneapp-wp.php
-VERSION=$(grep -E "^[[:space:]]*\*[[:space:]]*Version:[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+" geneapp-wp.php | sed -E 's/.*Version:[[:space:]]*([0-9.]+).*/\1/')
-BUILD_DIR="/tmp/geneapp-wp-build"
+PLUGIN_NAME="secure-iframe-embed-for-genealorama"
+# Extract version from genealorama.php
+VERSION=$(grep -E "^[[:space:]]*\*[[:space:]]*Version:[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+" genealorama.php | sed -E 's/.*Version:[[:space:]]*([0-9.]+).*/\1/')
+BUILD_DIR="/tmp/genealorama-build"
 ZIP_NAME="${PLUGIN_NAME}-v${VERSION}.zip"
 
-echo "🔨 Construction du plugin GeneApp-WP v${VERSION}..."
+echo "🔨 Building Secure Iframe Embed for Genealorama v${VERSION}..."
 
-# Nettoyer le répertoire de build s'il existe
+# Clean build directory if it exists
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR/$PLUGIN_NAME"
 
-# Copier les fichiers nécessaires
-echo "📁 Copie des fichiers..."
+# Copy necessary files
+echo "📁 Copying files..."
 
-# Fichiers racine
-cp geneapp-wp.php "$BUILD_DIR/$PLUGIN_NAME/"
+# Root files
+cp genealorama.php "$BUILD_DIR/$PLUGIN_NAME/"
 cp LICENSE "$BUILD_DIR/$PLUGIN_NAME/"
 cp CHANGELOG.md "$BUILD_DIR/$PLUGIN_NAME/"
 
-# Convertir readme.md en readme.txt au format WordPress
-echo "📝 Conversion du README au format WordPress..."
-cat > "$BUILD_DIR/$PLUGIN_NAME/readme.txt" << EOF
-=== GeneApp-WP ===
-Contributors: fbracq
-Tags: genealogy, iframe, integration, family tree, geneapp
-Requires at least: 5.0
-Tested up to: 6.8
-Stable tag: $VERSION
-Requires PHP: 7.2
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
+# Copy existing readme.txt file
+echo "📝 Copying WordPress readme..."
+cp readme.txt "$BUILD_DIR/$PLUGIN_NAME/"
 
-Intégration sécurisée de GeneApp dans WordPress avec authentification et page dédiée automatique.
-
-EOF
-
-# Ajouter le contenu du readme.md (sans l'en-tête)
-echo "" >> "$BUILD_DIR/$PLUGIN_NAME/readme.txt"
-echo "== Description ==" >> "$BUILD_DIR/$PLUGIN_NAME/readme.txt"
-echo "" >> "$BUILD_DIR/$PLUGIN_NAME/readme.txt"
-# Extraire le contenu après la ligne 11 du readme.md
-tail -n +12 readme.md >> "$BUILD_DIR/$PLUGIN_NAME/readme.txt"
-
-# Répertoire includes
+# Includes directory
 mkdir -p "$BUILD_DIR/$PLUGIN_NAME/includes"
 cp includes/*.php "$BUILD_DIR/$PLUGIN_NAME/includes/"
 
-# Créer les répertoires vides qui seront créés automatiquement
-mkdir -p "$BUILD_DIR/$PLUGIN_NAME/assets/css"
+# Copy assets directory if it exists
+if [ -d "assets" ]; then
+    cp -r assets "$BUILD_DIR/$PLUGIN_NAME/"
+fi
+
+# Create empty directories that will be created automatically
 mkdir -p "$BUILD_DIR/$PLUGIN_NAME/templates"
 
-# Créer le ZIP
-echo "📦 Création du fichier ZIP..."
+# Create ZIP
+echo "📦 Creating ZIP file..."
 cd "$BUILD_DIR"
 zip -r "$ZIP_NAME" "$PLUGIN_NAME"
 
@@ -66,8 +50,8 @@ mv "$ZIP_NAME" ~/Documents/GitHub/geneapp-wp/
 # Nettoyer
 rm -rf "$BUILD_DIR"
 
-echo "✅ Plugin construit avec succès : $ZIP_NAME"
-echo "📍 Emplacement : ~/Documents/GitHub/geneapp-wp/$ZIP_NAME"
+echo "✅ Plugin built successfully: $ZIP_NAME"
+echo "📍 Location: ~/Documents/GitHub/geneapp-wp/$ZIP_NAME"
 echo ""
-echo "📊 Contenu du ZIP :"
+echo "📊 ZIP contents:"
 unzip -l ~/Documents/GitHub/geneapp-wp/$ZIP_NAME

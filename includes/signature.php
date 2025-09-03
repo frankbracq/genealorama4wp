@@ -1,6 +1,6 @@
 <?php
 /**
- * Fonctions de signature pour GeneApp-WP
+ * Signature functions for Secure Iframe Embed for Genealorama
  */
 
 // Empêcher l'accès direct au fichier
@@ -9,55 +9,55 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Génère une signature HMAC SHA-256 pour l'authentification
+ * Generates HMAC SHA-256 signature for authentication
  * 
- * @param string $partner_id Identifiant du partenaire
- * @param array $user_data Données utilisateur avec clés 'id', 'email', 'timestamp'
- * @param string $partner_secret Clé secrète du partenaire
- * @return string Signature en hexadécimal
+ * @param string $partner_id Partner identifier
+ * @param array $user_data User data with keys 'id', 'email', 'timestamp'
+ * @param string $partner_secret Partner secret key
+ * @return string Signature in hexadecimal
  */
-function geneapp_wp_generate_signature($partner_id, $user_data, $partner_secret) {
-    // Utiliser l'email non encodé pour la signature
+function genealorama_generate_signature($partner_id, $user_data, $partner_secret) {
+    // Use non-encoded email for signature
     $email = $user_data['email'];
     
-    // Chaîne à signer (format exact attendu par le Worker)
+    // String to sign (exact format expected by Worker)
     $stringToSign = "partner_id={$partner_id}&uid={$user_data['id']}&email={$email}&ts={$user_data['timestamp']}";
     
-    // Calcul de la signature HMAC
+    // HMAC signature calculation
     $signature = hash_hmac('sha256', $stringToSign, $partner_secret);
     
     return $signature;
 }
 
 /**
- * Génère une URL complète avec paramètres signés
+ * Generates complete URL with signed parameters
  * 
- * @param string $base_url URL de base
- * @param string $partner_id Identifiant du partenaire
- * @param string $partner_secret Clé secrète du partenaire
- * @param string $uid ID utilisateur
- * @param string $email Email utilisateur
- * @return string URL complète avec signature
+ * @param string $base_url Base URL
+ * @param string $partner_id Partner identifier
+ * @param string $partner_secret Partner secret key
+ * @param string $uid User ID
+ * @param string $email User email
+ * @return string Complete URL with signature
  */
-function geneapp_generate_signed_url($base_url, $partner_id, $partner_secret, $uid, $email) {
+function genealorama_generate_signed_url($base_url, $partner_id, $partner_secret, $uid, $email) {
     $ts = time();
 
-    // Utilisation de la fonction principale pour la cohérence
+    // Use main function for consistency
     $user_data = [
         'id' => $uid,
-        'email' => $email, // Email non encodé pour la signature
+        'email' => $email, // Non-encoded email for signature
         'timestamp' => $ts
     ];
     
-    // Générer la signature avec l'email non encodé
-    $sig = geneapp_wp_generate_signature($partner_id, $user_data, $partner_secret);
+    // Generate signature with non-encoded email
+    $sig = genealorama_generate_signature($partner_id, $user_data, $partner_secret);
 
-    // Construction de l'URL avec les paramètres signés
-    // Important: encoder manuellement l'email pour l'URL après avoir calculé la signature
+    // Build URL with signed parameters
+    // Important: manually encode email for URL after calculating signature
     $params = [
         'partner_id' => $partner_id,
         'uid' => $uid,
-        'email' => urlencode($email), // Encodage pour l'URL
+        'email' => urlencode($email), // URL encoding
         'ts' => $ts,
         'sig' => $sig
     ];

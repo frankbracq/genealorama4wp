@@ -1,11 +1,11 @@
-name: Auto-tag & Build Plugin Release
+name: Auto-tag & Build Genealorama Plugin Release
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'geneapp-wp.php'  # Se déclenche seulement si ce fichier change
+      - 'genealorama.php'  # Triggers only if this file changes
   workflow_dispatch:  # Garder la possibilité manuelle
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
       - name: Extract plugin version
         id: extract_version
         run: |
-          version=$(grep -E "^\s*\*\s*Version:\s*[0-9]+\.[0-9]+\.[0-9]+" geneapp-wp.php | sed -E 's/.*Version:\s*([0-9.]+).*/\1/')
+          version=$(grep -E "^\s*\*\s*Version:\s*[0-9]+\.[0-9]+\.[0-9]+" genealorama.php | sed -E 's/.*Version:\s*([0-9.]+).*/\1/')
           echo "Version extracted: $version"
           echo "version=$version" >> $GITHUB_OUTPUT
 
@@ -51,41 +51,22 @@ jobs:
           git fetch --tags
           git checkout tags/v${{ steps.extract_version.outputs.version }}
 
-      - name: Package plugin into geneapp-wp.zip
+      - name: Package plugin into secure-iframe-embed-for-genealorama.zip
         run: |
           mkdir package
-          rsync -av --progress ./ ./package/geneapp-wp --exclude .git --exclude .github --exclude geneapp-wp.zip --exclude readme.txt --exclude build-plugin.sh --exclude create-zip.sh --exclude '*.md' --exclude '*.pdf' --exclude '*.txt' --exclude '*.zip'
+          rsync -av --progress ./ ./package/secure-iframe-embed-for-genealorama --exclude .git --exclude .github --exclude secure-iframe-embed-for-genealorama.zip --exclude build-plugin.sh --exclude create-zip.sh --exclude '*.md' --exclude '*.pdf' --exclude '*.zip'
           
-          # Convertir readme.md en readme.txt au format WordPress
-          cat > ./package/geneapp-wp/readme.txt << EOF
-          === GeneApp-WP ===
-          Contributors: fbracq
-          Tags: genealogy, iframe, integration, family tree, geneapp
-          Requires at least: 5.0
-          Tested up to: 6.8
-          Stable tag: ${{ steps.extract_version.outputs.version }}
-          Requires PHP: 7.2
-          License: GPLv2 or later
-          License URI: https://www.gnu.org/licenses/gpl-2.0.html
-          
-          Installez GeneApp sur votre site WordPress et offrez à vos visiteurs une expérience généalogique interactive basée sur leurs fichiers GEDCOM.
-          
-          EOF
-          
-          # Ajouter le contenu du readme.md
-          echo "" >> ./package/geneapp-wp/readme.txt
-          echo "== Description ==" >> ./package/geneapp-wp/readme.txt
-          echo "" >> ./package/geneapp-wp/readme.txt
-          tail -n +12 readme.md >> ./package/geneapp-wp/readme.txt
+          # Copy the existing readme.txt file
+          cp readme.txt ./package/secure-iframe-embed-for-genealorama/
           
           cd package
-          zip -r ../geneapp-wp.zip geneapp-wp
+          zip -r ../secure-iframe-embed-for-genealorama.zip secure-iframe-embed-for-genealorama
 
       - name: Create GitHub Release & Upload ZIP
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.extract_version.outputs.version }}
           name: v${{ steps.extract_version.outputs.version }}
-          files: geneapp-wp.zip
+          files: secure-iframe-embed-for-genealorama.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
