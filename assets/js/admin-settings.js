@@ -31,12 +31,12 @@ jQuery(document).ready(function($) {
         $spinner.show();
         
         $.ajax({
-            url: ajaxurl,
+            url: genealoramaAdmin.ajaxurl,
             type: 'POST',
             data: {
                 action: 'genealorama_get_credentials',
                 email: email,
-                nonce: $('#genealorama_credentials_nonce').val()
+                nonce: genealoramaAdmin.nonce
             },
             success: function(response) {
                 $btn.prop('disabled', false);
@@ -77,13 +77,13 @@ jQuery(document).ready(function($) {
         $container.addClass('saving');
         
         $.ajax({
-            url: ajaxurl,
+            url: genealoramaAdmin.ajaxurl,
             type: 'POST',
             data: {
                 action: 'genealorama_save_display_option',
                 option_name: optionName,
                 option_value: optionValue,
-                nonce: $('#genealorama_display_nonce').val()
+                nonce: genealoramaAdmin.nonce
             },
             success: function(response) {
                 $container.removeClass('saving');

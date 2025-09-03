@@ -337,7 +337,8 @@ function genealorama_check_directories() {
  * Créer le répertoire des templates et son fichier
  */
 function genealorama_create_template_directory() {
-    $template_dir = plugin_dir_path(__FILE__) . 'templates';
+    $upload_dir = wp_upload_dir();
+    $template_dir = $upload_dir['basedir'] . '/genealorama/templates';
     if (!file_exists($template_dir)) {
         wp_mkdir_p($template_dir);
     }
