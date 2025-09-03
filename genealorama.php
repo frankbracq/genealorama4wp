@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Secure Iframe Embed for Genealorama
  * Description: Secure iframe integration to embed the Genealorama web application into WordPress sites with dedicated page templates and credential validation
- * Version: 2.1.0
+ * Version: 2.1.1
  * Author: genealorama.com
  * License: GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
@@ -166,13 +166,15 @@ public function genealorama_shortcode($atts) {
      * Enregistrer les styles CSS du plugin
      */
     public function register_styles() {
-        // Vérifier si le fichier CSS existe, sinon le recréer
-        $css_file = plugin_dir_path(__FILE__) . 'assets/css/genealorama.css';
+        // Vérifier si le fichier CSS existe dans le répertoire uploads, sinon le recréer
+        $upload_dir = wp_upload_dir();
+        $css_file = $upload_dir['basedir'] . '/genealorama/css/genealorama.css';
         if (!file_exists($css_file)) {
             $this->create_css_file();
         }
         
-        wp_register_style('genealorama-embed-styles', plugins_url('assets/css/genealorama.css', __FILE__), array(), '1.9.1');
+        $css_url = $upload_dir['baseurl'] . '/genealorama/css/genealorama.css';
+        wp_register_style('genealorama-embed-styles', $css_url, array(), '2.1.0');
         wp_enqueue_style('genealorama-embed-styles');
         
         // Only enqueue script if genealorama shortcode is used
@@ -192,7 +194,8 @@ public function genealorama_shortcode($atts) {
      * Créer le fichier CSS s'il n'existe pas
      */
     private function create_css_file() {
-        $css_dir = plugin_dir_path(__FILE__) . 'assets/css';
+        $upload_dir = wp_upload_dir();
+        $css_dir = $upload_dir['basedir'] . '/genealorama/css';
         if (!file_exists($css_dir)) {
             wp_mkdir_p($css_dir);
         }
@@ -256,8 +259,9 @@ body.genealorama-template-page {
      * Charger le template personnalisé si sélectionné
      */
     public function load_page_template($template) {
-        // Vérifier si le fichier template existe, sinon le recréer
-        $template_file = plugin_dir_path(__FILE__) . 'templates/genealorama-template.php';
+        // Vérifier si le fichier template existe dans le répertoire uploads, sinon le recréer
+        $upload_dir = wp_upload_dir();
+        $template_file = $upload_dir['basedir'] . '/genealorama/templates/genealorama-template.php';
         if (!file_exists($template_file)) {
             genealorama_create_template_file();
         }
@@ -326,7 +330,7 @@ function genealorama_check_directories() {
     // Vérifier et créer les répertoires et fichiers
     genealorama_create_template_directory();
     genealorama_create_assets_directory();
-    genealorama_create_includes_directory();
+    // Note: signature.php is already included as a static file in includes/
 }
 
 /**
@@ -345,7 +349,12 @@ function genealorama_create_template_directory() {
  * Créer le fichier template
  */
 function genealorama_create_template_file() {
-    $template_file = plugin_dir_path(__FILE__) . 'templates/genealorama-template.php';
+    $upload_dir = wp_upload_dir();
+    $template_dir = $upload_dir['basedir'] . '/genealorama/templates';
+    if (!file_exists($template_dir)) {
+        wp_mkdir_p($template_dir);
+    }
+    $template_file = $template_dir . '/genealorama-template.php';
     if (!file_exists($template_file)) {
         $template_content = '<?php
 /**
@@ -385,12 +394,13 @@ remove_action(\'wp_head\', \'_wp_render_title_tag\', 1);
  * Créer le répertoire des assets et ses fichiers
  */
 function genealorama_create_assets_directory() {
-    $assets_dir = plugin_dir_path(__FILE__) . 'assets';
+    $upload_dir = wp_upload_dir();
+    $assets_dir = $upload_dir['basedir'] . '/genealorama/assets';
     if (!file_exists($assets_dir)) {
         wp_mkdir_p($assets_dir);
     }
     
-    $css_dir = plugin_dir_path(__FILE__) . 'assets/css';
+    $css_dir = $upload_dir['basedir'] . '/genealorama/assets/css';
     if (!file_exists($css_dir)) {
         wp_mkdir_p($css_dir);
     }
@@ -445,66 +455,6 @@ body.genealorama-template-page {
     }
 }
 
-/**
- * Créer le répertoire des includes et ses fichiers
- */
-function genealorama_create_includes_directory() {
-    $includes_dir = plugin_dir_path(__FILE__) . 'includes';
-    if (!file_exists($includes_dir)) {
-        wp_mkdir_p($includes_dir);
-    }
-    
-    // Vérifier l'existence du fichier signature.php
-    $signature_file = $includes_dir . '/signature.php';
-    if (!file_exists($signature_file)) {
-        $signature_content = '<?php
-/**
- * Signature functions for Secure Iframe Embed for Genealorama
- */
-
-// Empêcher l\'accès direct au fichier
-if (!defined(\'ABSPATH\')) {
-    exit;
-}
-
-/**
- * Generates a secure signature for authentication with Genealorama
- *
- * @param string $partner_id Identifiant du partenaire
- * @param array $user_data Données utilisateur (id, email, timestamp)
- * @param string $partner_secret Clé secrète du partenaire
- * @return string Signature générée
- */
-function genealorama_generate_signature($partner_id, $user_data, $partner_secret) {
-    // Assurez-vous que l\'email est raw (non encodé pour l\'URL)
-    $email = $user_data[\'email\'];
-    
-    // Chaîne à signer (format exact attendu par le Worker)
-    $stringToSign = "partner_id={$partner_id}&uid={$user_data[\'id\']}&email={$email}&ts={$user_data[\'timestamp\']}";
-    
-    // Log pour debug (à retirer en production)
-    // error_log("String to sign: " . $stringToSign);
-    
-    // Calcul de la signature HMAC
-    $signature = hash_hmac(\'sha256\', $stringToSign, $partner_secret);
-    
-    // Log pour debug (à retirer en production)
-    // error_log("Generated signature: " . $signature);
-    
-    return $signature;
-}';
-        file_put_contents($signature_file, $signature_content);
-    }
-    
-    // Vérifier l'existence du fichier admin-settings.php
-    $admin_file = $includes_dir . '/admin-settings.php';
-    if (!file_exists($admin_file)) {
-        // Créer le fichier admin-settings.php s'il n'existe pas
-        // Note: Ce fichier devrait normalement exister car il est inclus au début du plugin
-        // Cette fonction de création ne devrait donc jamais être exécutée
-        // error_log('Warning: admin-settings.php was missing and needs to be recreated');
-    }
-}
 
 // Execute on plugin activation
 register_activation_hook(__FILE__, 'genealorama_check_directories');

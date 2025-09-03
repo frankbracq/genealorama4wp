@@ -1,5 +1,5 @@
 === Secure Iframe Embed for Genealorama ===
-Contributors: frankbracq
+Contributors: fbracq
 Tags: iframe, embed, genealogy, secure, authentication
 Requires at least: 5.0
 Tested up to: 6.8
@@ -87,6 +87,28 @@ Yes, you can use `[genealorama_embed]` on any page or post.
 = Is the integration secure? =
 
 Yes, the plugin uses HMAC-SHA256 signatures for authentication and requires users to be logged in to WordPress.
+
+== External Services ==
+
+This plugin connects to external services to provide genealogy visualization functionality:
+
+= Genealorama Application Service =
+* **Purpose**: Provides the main genealogy application interface through a secure iframe
+* **Service URL**: https://app.genealorama.com
+* **Data sent**: User authentication tokens, timestamps, and signatures for secure access
+* **When**: Every time a user loads the genealogy interface
+* **Terms of Service**: https://genealorama.com/terms
+* **Privacy Policy**: https://genealorama.com/privacy
+
+= Partner Registration API =
+* **Purpose**: Registers WordPress sites as authorized partners for the genealogy service
+* **Service URL**: https://partner-registration.genealogie.app
+* **Data sent**: Site domain, admin email, WordPress version, plugin version
+* **When**: During initial setup when admin clicks "Get My Credentials"
+* **Terms of Service**: https://genealorama.com/terms
+* **Privacy Policy**: https://genealorama.com/privacy
+
+These external connections are required for the plugin to function properly and provide secure access to genealogy services.
 
 == Screenshots ==
 

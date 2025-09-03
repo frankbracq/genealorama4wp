@@ -42,6 +42,31 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
         
         // Add our custom styles
         wp_add_inline_style('wp-admin', $this->get_admin_styles());
+        
+        // Enqueue admin JavaScript
+        wp_enqueue_script('jquery');
+        wp_enqueue_script(
+            'genealorama-admin',
+            plugin_dir_url(dirname(__FILE__)) . 'assets/js/admin-settings.js',
+            array('jquery'),
+            '2.1.0',
+            true
+        );
+        
+        // Localize script with icon classes and auto-validation flag
+        $has_credentials = !empty(get_option('genealorama_partner_id')) && !empty(get_option('genealorama_partner_secret'));
+        $last_validation = get_option('genealorama_last_validation_date');
+        $saved_domain = get_option('genealorama_partner_domain', '');
+        $current_domain = $this->get_site_domain();
+        $domain_changed = !empty($saved_domain) && $saved_domain !== $current_domain;
+        
+        wp_localize_script('genealorama-admin', 'genealoramaAdmin', array(
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'eyeIcon' => $this->get_icon_class('fa-eye'),
+            'eyeSlashIcon' => $this->get_icon_class('fa-eye-slash'),
+            'nonce' => wp_create_nonce('genealorama_admin_nonce'),
+            'autoValidate' => $has_credentials && !$last_validation && !$domain_changed
+        ));
     }
     
     /**
@@ -1167,148 +1192,6 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
         <?php wp_nonce_field('genealorama_validate_nonce', 'genealorama_validate_nonce_field'); ?>
         <?php wp_nonce_field('genealorama_display_options', 'genealorama_display_nonce'); ?>
         
-        <script>
-        jQuery(document).ready(function($) {
-            // Toggle secret visibility
-            $('#toggle-secret').on('click', function() {
-                const input = $('#genealorama_partner_secret_display');
-                const icon = $(this).find('span.dashicons');
-                
-                if (input.attr('type') === 'password') {
-                    input.attr('type', 'text');
-                    icon.removeClass('<?php echo esc_js($this->get_icon_class('fa-eye')); ?>').addClass('<?php echo esc_js($this->get_icon_class('fa-eye-slash')); ?>');
-                } else {
-                    input.attr('type', 'password');
-                    icon.removeClass('<?php echo esc_js($this->get_icon_class('fa-eye-slash')); ?>').addClass('<?php echo esc_js($this->get_icon_class('fa-eye')); ?>');
-                }
-            });
-            
-            // Connect to Genealorama
-            $('#genealorama-connect-btn').on('click', function() {
-                const email = $('#genealorama_email').val();
-                if (!email) {
-                    showMessage('connection-message', 'error', 'Please enter your email.');
-                    return;
-                }
-                
-                const $btn = $(this);
-                const $spinner = $('#connection-spinner');
-                
-                $btn.prop('disabled', true);
-                $spinner.show();
-                
-                $.ajax({
-                    url: ajaxurl,
-                    type: 'POST',
-                    data: {
-                        action: 'genealorama_get_credentials',
-                        nonce: $('#genealorama_credentials_nonce').val(),
-                        email: email
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            showMessage('connection-message', 'success', 
-                                'Connection successful! Reloading page...');
-                            setTimeout(() => location.reload(), 1500);
-                        } else {
-                            showMessage('connection-message', 'error', response.data.message);
-                        }
-                    },
-                    error: function() {
-                        showMessage('connection-message', 'error', 
-                            'Server connection error.');
-                    },
-                    complete: function() {
-                        $btn.prop('disabled', false);
-                        $spinner.hide();
-                    }
-                });
-            });
-            
-            // Credential validation
-            $('#genealorama-validate-btn').on('click', function() {
-                const $btn = $(this);
-                const $spinner = $('#validate-spinner');
-                
-                $btn.prop('disabled', true);
-                $spinner.addClass('active');
-                
-                $.ajax({
-                    url: ajaxurl,
-                    type: 'POST',
-                    data: {
-                        action: 'genealorama_validate_credentials',
-                        nonce: $('#genealorama_validate_nonce_field').val()
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            showMessage('connection-message', 'success', 
-                                'Connection validated successfully!');
-                            setTimeout(() => location.reload(), 1500);
-                        }
-                    },
-                    complete: function() {
-                        $btn.prop('disabled', false);
-                        $spinner.removeClass('active');
-                    }
-                });
-            });
-            
-            // Save display options
-            $('#save-display-options').on('click', function() {
-                const $btn = $(this);
-                const $spinner = $('#options-spinner');
-                
-                $btn.prop('disabled', true);
-                $spinner.addClass('active');
-                
-                $.ajax({
-                    url: ajaxurl,
-                    type: 'POST',
-                    data: {
-                        action: 'genealorama_save_display_options',
-                        nonce: $('#genealorama_display_nonce').val(),
-                        auto_height: $('#auto_height_option').is(':checked')
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            showMessage('connection-message', 'success', response.data.message);
-                        }
-                    },
-                    complete: function() {
-                        $btn.prop('disabled', false);
-                        $spinner.removeClass('active');
-                    }
-                });
-            });
-            
-            // Function to display messages
-            function showMessage(containerId, type, message) {
-                const iconMap = {
-                    'success': '<?php echo esc_js($this->get_icon_class('fa-check-circle')); ?>',
-                    'error': '<?php echo esc_js($this->get_icon_class('fa-times-circle')); ?>',
-                    'warning': '<?php echo esc_js($this->get_icon_class('fa-exclamation-triangle')); ?>',
-                    'info': '<?php echo esc_js($this->get_icon_class('fa-info-circle')); ?>'
-                };
-                
-                const html = `
-                    <div class="genealorama-alert genealorama-alert-${type}">
-                        <span class="dashicons ${iconMap[type]}"></span>
-                        <div>${message}</div>
-                    </div>
-                `;
-                
-                $('#' + containerId).html(html);
-            }
-            
-            // Auto validation on load if necessary
-            <?php if ($has_credentials && !$last_validation && !$domain_changed): ?>
-            setTimeout(function() {
-                $('#genealorama-validate-btn').trigger('click');
-            }, 1000);
-            <?php endif; ?>
-        });
-        </script>
         <?php
     }
 }
