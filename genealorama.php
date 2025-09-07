@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Secure Iframe Embed for Genealorama
  * Description: Secure iframe integration to embed the Genealorama web application into WordPress sites with dedicated page templates and credential validation
- * Version: 2.1.2
+ * Version: 2.1.3
  * Author: genealorama.com
  * License: GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
@@ -88,7 +88,7 @@ public function genealorama_shortcode($atts) {
     ];
 
     $atts = shortcode_atts([
-        'src'         => 'https://app.genealorama.com/iframe-entry/',
+        'src'         => 'https://genealogie.app/iframe-entry/',
         'width'       => '100%',
         'height'      => 'auto',
         'auto_height' => 'true',
