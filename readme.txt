@@ -54,7 +54,7 @@ With options:
 
 = Shortcode Parameters =
 
-* `src` - Application URL (default: `https://app.genealorama.com/iframe-entry/`)
+* `src` - Application URL (default: `https://genealogie.app/iframe-entry/`)
 * `auto_height` - Automatic height adjustment (default: `true`)
 * `fullscreen` - Full screen mode (default: `false`)
 
@@ -67,7 +67,7 @@ With options:
 
 = API Keys Configuration =
 
-To activate integration with app.genealorama.com:
+To activate integration with genealogie.app:
 
 1. Go to **Settings > Genealorama Settings**
 2. Enter your **Email** and click "Get My Credentials"
@@ -94,7 +94,7 @@ This plugin connects to external services to provide genealogy visualization fun
 
 = Genealorama Application Service =
 * **Purpose**: Provides the main genealogy application interface through a secure iframe
-* **Service URL**: https://app.genealorama.com
+* **Service URL**: https://genealogie.app
 * **Data sent**: User authentication tokens, timestamps, and signatures for secure access
 * **When**: Every time a user loads the genealogy interface
 * **Terms of Service**: https://genealorama.com/terms
