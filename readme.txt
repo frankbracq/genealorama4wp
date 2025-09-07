@@ -3,7 +3,7 @@ Contributors: fbracq
 Tags: iframe, embed, genealogy, secure, authentication
 Requires at least: 5.0
 Tested up to: 6.8
-Stable tag: 2.1.3
+Stable tag: 2.1.4
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -117,6 +117,12 @@ These external connections are required for the plugin to function properly and 
 3. Shortcode integration example
 
 == Changelog ==
+
+= 2.1.4 =
+* Fixed text domain to match plugin slug
+* Improved build process and GitHub Actions
+* Enhanced asset management using WordPress uploads directory
+* Better compliance with WordPress.org guidelines
 
 = 2.0.0 =
 * Complete rebranding to Genealorama
