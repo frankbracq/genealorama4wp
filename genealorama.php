@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Secure Iframe Embed for Genealorama
  * Description: Secure iframe integration to embed the Genealorama web application into WordPress sites with dedicated page templates and credential validation
- * Version: 2.1.4
+ * Version: 2.1.5
  * Author: genealorama.com
  * License: GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
@@ -22,6 +22,22 @@ require_once plugin_dir_path(__FILE__) . 'includes/signature.php';
 require_once plugin_dir_path(__FILE__) . 'includes/admin-settings.php';
 
 class Secure_Iframe_Embed_For_Genealorama {
+    
+    private static $version = null;
+    
+    /**
+     * Récupérer la version du plugin depuis l'en-tête
+     */
+    public static function get_version() {
+        if (self::$version === null) {
+            if (!function_exists('get_plugin_data')) {
+                require_once ABSPATH . 'wp-admin/includes/plugin.php';
+            }
+            $plugin_data = get_plugin_data(__FILE__);
+            self::$version = $plugin_data['Version'];
+        }
+        return self::$version;
+    }
     
     /**
      * Constructeur - initialise le plugin
@@ -174,12 +190,13 @@ public function genealorama_shortcode($atts) {
         }
         
         $css_url = $upload_dir['baseurl'] . '/genealorama/css/genealorama.css';
-        wp_register_style('genealorama-embed-styles', $css_url, array(), '2.1.0');
+        wp_register_style('genealorama-embed-styles', $css_url, array(), self::get_version());
         wp_enqueue_style('genealorama-embed-styles');
         
         // Only enqueue script if genealorama shortcode is used
-        if (has_shortcode(get_post()->post_content, 'genealorama_embed')) {
-            wp_enqueue_script('genealorama-embed-js', plugins_url('assets/js/genealorama.js', __FILE__), array(), '1.9.1', true);
+        global $post;
+        if ($post && has_shortcode($post->post_content, 'genealorama_embed')) {
+            wp_enqueue_script('genealorama-embed-js', plugins_url('assets/js/genealorama.js', __FILE__), array(), self::get_version(), true);
             
             // Localize script with admin status and settings URL
             wp_localize_script('genealorama-embed-js', 'genealoramaEmbed', array(

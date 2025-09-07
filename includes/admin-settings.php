@@ -40,8 +40,10 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
         // Use Dashicons instead of Font Awesome (already included in WordPress)
         wp_enqueue_style('dashicons');
         
-        // Add our custom styles
-        wp_add_inline_style('wp-admin', $this->get_admin_styles());
+        // Register and enqueue admin styles
+        wp_register_style('genealorama-admin', plugin_dir_url(dirname(__FILE__)) . 'assets/css/admin.css', [], Secure_Iframe_Embed_For_Genealorama::get_version());
+        wp_enqueue_style('genealorama-admin');
+        wp_add_inline_style('genealorama-admin', $this->get_admin_styles());
         
         // Enqueue admin JavaScript
         wp_enqueue_script('jquery');
@@ -49,7 +51,7 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
             'genealorama-admin',
             plugin_dir_url(dirname(__FILE__)) . 'assets/js/admin-settings.js',
             array('jquery'),
-            '2.1.0',
+            Secure_Iframe_Embed_For_Genealorama::get_version(),
             true
         );
         
@@ -814,7 +816,7 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
                 'source' => 'wordpress_plugin',
                 'site_url' => get_site_url(),
                 'wp_version' => get_bloginfo('version'),
-                'plugin_version' => '1.9.1',
+                'plugin_version' => Secure_Iframe_Embed_For_Genealorama::get_version(),
             )),
             'timeout' => 15,
         ));
