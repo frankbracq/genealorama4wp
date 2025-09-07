@@ -40,10 +40,8 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
         // Use Dashicons instead of Font Awesome (already included in WordPress)
         wp_enqueue_style('dashicons');
         
-        // Register and enqueue admin styles
-        wp_register_style('genealorama-admin', plugin_dir_url(dirname(__FILE__)) . 'assets/css/admin.css', [], Secure_Iframe_Embed_For_Genealorama::get_version());
-        wp_enqueue_style('genealorama-admin');
-        wp_add_inline_style('genealorama-admin', $this->get_admin_styles());
+        // Add our custom styles inline to dashicons handle
+        wp_add_inline_style('dashicons', $this->get_admin_styles());
         
         // Enqueue admin JavaScript
         wp_enqueue_script('jquery');
