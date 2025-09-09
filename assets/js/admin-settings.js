@@ -66,6 +66,77 @@ jQuery(document).ready(function($) {
         });
     });
     
+    // Validate Connection button
+    $('#genealorama-validate-btn').on('click', function() {
+        const $btn = $(this);
+        const $spinner = $('#validate-spinner');
+        
+        $btn.prop('disabled', true);
+        $spinner.addClass('active');
+        
+        $.ajax({
+            url: genealoramaAdmin.ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'genealorama_validate_credentials',
+                nonce: genealoramaAdmin.nonce
+            },
+            success: function(response) {
+                $btn.prop('disabled', false);
+                $spinner.removeClass('active');
+                
+                if (response.success && response.data.valid) {
+                    showMessage('connection-message', 'success', 'Connection validated successfully!');
+                    updateConnectionStatus(true);
+                    
+                    // Update the connection status display
+                    location.reload(); // Reload to update the status display
+                } else {
+                    showMessage('connection-message', 'error', response.data.message || 'Invalid credentials.');
+                    updateConnectionStatus(false);
+                }
+            },
+            error: function() {
+                $btn.prop('disabled', false);
+                $spinner.removeClass('active');
+                showMessage('connection-message', 'error', 'Validation failed. Please try again.');
+            }
+        });
+    });
+    
+    // Save display options button
+    $('#save-display-options').on('click', function() {
+        const $btn = $(this);
+        const $spinner = $('#options-spinner');
+        const autoHeight = $('#auto_height_option').prop('checked');
+        
+        $btn.prop('disabled', true);
+        $spinner.addClass('active');
+        
+        $.ajax({
+            url: genealoramaAdmin.ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'genealorama_save_display_options',
+                auto_height: autoHeight,
+                nonce: genealoramaAdmin.nonce
+            },
+            success: function(response) {
+                $btn.prop('disabled', false);
+                $spinner.removeClass('active');
+                
+                if (response.success) {
+                    showMessage('connection-message', 'success', 'Display options saved successfully!');
+                }
+            },
+            error: function() {
+                $btn.prop('disabled', false);
+                $spinner.removeClass('active');
+                showMessage('connection-message', 'error', 'Failed to save options. Please try again.');
+            }
+        });
+    });
+    
     // Save display options
     $('.genealorama-display-option').on('change', function() {
         const $option = $(this);
@@ -103,10 +174,32 @@ jQuery(document).ready(function($) {
     // Helper functions
     function showMessage(containerId, type, message) {
         const $container = $('#' + containerId);
-        $container.removeClass('notice-success notice-error notice-warning')
-                 .addClass('notice notice-' + type)
-                 .html('<p>' + message + '</p>')
-                 .show();
+        
+        // Map type to CSS class
+        let cssClass = 'genealorama-alert-info';
+        let iconClass = 'dashicons-info';
+        
+        switch(type) {
+            case 'success':
+                cssClass = 'genealorama-alert-success';
+                iconClass = 'dashicons-yes-alt';
+                break;
+            case 'error':
+                cssClass = 'genealorama-alert-error';
+                iconClass = 'dashicons-dismiss';
+                break;
+            case 'warning':
+                cssClass = 'genealorama-alert-warning';
+                iconClass = 'dashicons-warning';
+                break;
+        }
+        
+        $container.html(
+            '<div class="genealorama-alert ' + cssClass + '">' +
+                '<span class="dashicons ' + iconClass + '"></span>' +
+                '<div>' + message + '</div>' +
+            '</div>'
+        ).show();
         
         // Hide success messages after 5 seconds
         if (type === 'success') {
@@ -138,5 +231,12 @@ jQuery(document).ready(function($) {
     // Show options section if already connected
     if (hasCredentials) {
         $('.genealorama-options-section').show();
+    }
+    
+    // Auto-validate credentials if needed
+    if (genealoramaAdmin.autoValidate) {
+        setTimeout(function() {
+            $('#genealorama-validate-btn').trigger('click');
+        }, 1000);
     }
 });
