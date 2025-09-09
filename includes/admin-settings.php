@@ -740,7 +740,7 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
      * Gestionnaire AJAX pour valider les identifiants
      */
     public function ajax_validate_credentials() {
-        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'genealorama_validate_nonce')) {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'genealorama_admin_nonce')) {
             wp_send_json_error(array('message' => 'Security error'));
         }
         
@@ -782,7 +782,7 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
      */
     public function ajax_get_credentials() {
         // Vérifier le nonce
-        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'genealorama_auto_credentials')) {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'genealorama_admin_nonce')) {
             wp_send_json_error(array('message' => 'Security error, please refresh the page.'));
         }
         
@@ -853,7 +853,7 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
      * Gestionnaire AJAX pour sauvegarder les options d'affichage
      */
     public function ajax_save_display_options() {
-        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'genealorama_display_options')) {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'genealorama_admin_nonce')) {
             wp_send_json_error(array('message' => 'Security error'));
         }
         
