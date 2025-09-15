@@ -55,7 +55,8 @@ jobs:
         run: |
           mkdir -p package/secure-iframe-embed-for-genealorama/includes
           mkdir -p package/secure-iframe-embed-for-genealorama/assets
-          
+          mkdir -p package/secure-iframe-embed-for-genealorama/languages
+
           # Copy only necessary plugin files
           cp genealorama.php package/secure-iframe-embed-for-genealorama/
           cp readme.txt package/secure-iframe-embed-for-genealorama/
@@ -64,6 +65,7 @@ jobs:
           cp includes/admin-settings.php package/secure-iframe-embed-for-genealorama/includes/
           cp includes/signature.php package/secure-iframe-embed-for-genealorama/includes/
           cp -r assets package/secure-iframe-embed-for-genealorama/ 2>/dev/null || true
+          cp -r languages package/secure-iframe-embed-for-genealorama/ 2>/dev/null || true
           
           cd package
           zip -r ../secure-iframe-embed-for-genealorama.zip secure-iframe-embed-for-genealorama

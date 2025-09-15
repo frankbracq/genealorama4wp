@@ -1,0 +1,113 @@
+# Copyright (C) 2025 genealorama.com
+# This file is distributed under the GPL-2.0+.
+msgid ""
+msgstr ""
+"Project-Id-Version: Secure Iframe Embed for Genealorama 2.1.7\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/secure-iframe-embed-for-genealorama\n"
+"POT-Creation-Date: 2025-01-15 12:00:00+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: includes/admin-settings.php:200
+msgid "Secure Iframe Embed for Genealorama Settings"
+msgstr ""
+
+#: includes/admin-settings.php:210
+msgid "Partner Credentials"
+msgstr ""
+
+#: includes/admin-settings.php:211
+msgid "Credentials for secure authentication with Genealorama"
+msgstr ""
+
+#: includes/admin-settings.php:215
+msgid "Partner ID"
+msgstr ""
+
+#: includes/admin-settings.php:220
+msgid "Partner Secret"
+msgstr ""
+
+#: includes/admin-settings.php:225
+msgid "Validate Credentials"
+msgstr ""
+
+#: includes/admin-settings.php:230
+msgid "Display Options"
+msgstr ""
+
+#: includes/admin-settings.php:231
+msgid "Customize the appearance of the embedded Genealorama"
+msgstr ""
+
+#: includes/admin-settings.php:235
+msgid "Container Width"
+msgstr ""
+
+#: includes/admin-settings.php:240
+msgid "Container Height"
+msgstr ""
+
+#: includes/admin-settings.php:245
+msgid "Show as Full Screen"
+msgstr ""
+
+#: includes/admin-settings.php:250
+msgid "Save Display Options"
+msgstr ""
+
+#: includes/admin-settings.php:260
+msgid "How to Use"
+msgstr ""
+
+#: includes/admin-settings.php:265
+msgid "Page Template"
+msgstr ""
+
+#: includes/admin-settings.php:266
+msgid "Create a new page and select 'Genealorama Page Template' from the page attributes"
+msgstr ""
+
+#: includes/admin-settings.php:270
+msgid "Shortcode"
+msgstr ""
+
+#: includes/admin-settings.php:271
+msgid "Use [genealorama_embed] in any page or post"
+msgstr ""
+
+#: includes/admin-settings.php:275
+msgid "Custom Integration"
+msgstr ""
+
+#: includes/admin-settings.php:276
+msgid "For advanced integration, see our documentation"
+msgstr ""
+
+#: genealorama.php:167
+msgid "Partner ID and Secret not configured."
+msgstr ""
+
+#: genealorama.php:167
+msgid "Please update them"
+msgstr ""
+
+#: includes/admin-settings.php:450
+msgid "Credentials are valid!"
+msgstr ""
+
+#: includes/admin-settings.php:455
+msgid "Invalid credentials. Please check your Partner ID and Secret."
+msgstr ""
+
+#: includes/admin-settings.php:460
+msgid "Display options saved successfully!"
+msgstr ""
+
+#: includes/admin-settings.php:300
+msgid "Settings"
+msgstr ""
