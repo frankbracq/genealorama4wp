@@ -2,11 +2,12 @@
 /**
  * Plugin Name: Secure Iframe Embed for Genealorama
  * Description: Secure iframe integration to embed the Genealorama web application into WordPress sites with dedicated page templates and credential validation
- * Version: 2.1.7
+ * Version: 2.2.0
  * Author: genealorama.com
  * License: GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain: secure-iframe-embed-for-genealorama
+ * Domain Path: /languages
  */
 
 // Empêcher l'accès direct au fichier
@@ -43,6 +44,9 @@ class Secure_Iframe_Embed_For_Genealorama {
      * Constructeur - initialise le plugin
      */
     public function __construct() {
+        // Charger les traductions
+        add_action('init', array($this, 'load_textdomain'));
+
         // Enregistrer le shortcode
         add_shortcode('genealorama_embed', array($this, 'genealorama_shortcode'));
         
@@ -61,7 +65,18 @@ class Secure_Iframe_Embed_For_Genealorama {
         register_deactivation_hook(__FILE__, array($this, 'unschedule_daily_validation'));
         add_action('genealorama_daily_validation', array($this, 'perform_daily_validation'));
     }
-    
+
+    /**
+     * Charger le domaine de traduction
+     */
+    public function load_textdomain() {
+        load_plugin_textdomain(
+            'secure-iframe-embed-for-genealorama',
+            false,
+            dirname(plugin_basename(__FILE__)) . '/languages'
+        );
+    }
+
     /**
      * Planifier la validation quotidienne des identifiants
      */
@@ -93,7 +108,7 @@ class Secure_Iframe_Embed_For_Genealorama {
  */
 public function genealorama_shortcode($atts) {
     if (!is_user_logged_in()) {
-        return '<p>Please log in to access this feature.</p>';
+        return '<p>' . esc_html__('Please log in to access this feature.', 'secure-iframe-embed-for-genealorama') . '</p>';
     }
 
     $current_user = wp_get_current_user();
@@ -119,11 +134,13 @@ public function genealorama_shortcode($atts) {
     // Vérifier si les informations de partenaire sont configurées
     if (empty($partner_id) || empty($partner_secret)) {
         if (current_user_can('manage_options')) {
-            return '<p>Please configure the Genealorama partner information in the <a href="' . 
-                admin_url('options-general.php?page=secure-iframe-embed-for-genealorama-settings') . 
-                '">plugin settings</a>.</p>';
+            return '<p>' . sprintf(
+                esc_html__('Please configure the Genealorama partner information in the %splugin settings%s.', 'secure-iframe-embed-for-genealorama'),
+                '<a href="' . admin_url('options-general.php?page=secure-iframe-embed-for-genealorama-settings') . '">',
+                '</a>'
+            ) . '</p>';
         } else {
-            return '<p>This feature is not yet configured. Please contact the site administrator.</p>';
+            return '<p>' . esc_html__('This feature is not yet configured. Please contact the site administrator.', 'secure-iframe-embed-for-genealorama') . '</p>';
         }
     }
 
@@ -163,8 +180,13 @@ public function genealorama_shortcode($atts) {
     <div class="<?php echo esc_attr($container_class); ?>">
         <?php if ($validation_status === 'invalid' && $is_admin): ?>
         <div class="genealorama-auth-warning" style="background: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
-            <strong>Warning:</strong> Genealorama credentials appear to be invalid. 
-            <a href="<?php echo esc_url($settings_url); ?>">Please update them</a>.
+            <?php echo sprintf(
+                esc_html__('%sWarning:%s Genealorama credentials appear to be invalid. %sPlease update them%s.', 'secure-iframe-embed-for-genealorama'),
+                '<strong>',
+                '</strong>',
+                '<a href="' . esc_url($settings_url) . '">',
+                '</a>'
+            ); ?>
         </div>
         <?php endif; ?>
         
