@@ -132,6 +132,20 @@ if svn status | grep -q '^[AM!D]'; then
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         cd "$SVN_TRUNK_PATH"
         svn commit -m "$LAST_COMMIT_MSG (Git: $LAST_COMMIT_HASH)"
+
+        # Créer automatiquement un tag pour cette version
+        echo -e "${YELLOW}🏷️  Création du tag SVN pour la version $PHP_VERSION...${NC}"
+        cd "$SVN_REPO_PATH"
+
+        # Vérifier si le tag existe déjà
+        if [ ! -d "tags/$PHP_VERSION" ]; then
+            svn copy trunk "tags/$PHP_VERSION"
+            svn commit -m "Tag version $PHP_VERSION (Git: $LAST_COMMIT_HASH)"
+            echo -e "${GREEN}✅ Tag $PHP_VERSION créé avec succès!${NC}"
+        else
+            echo -e "${YELLOW}⚠️  Tag $PHP_VERSION existe déjà${NC}"
+        fi
+
         echo -e "${GREEN}✅ Synchronisation terminée avec succès!${NC}"
     else
         echo -e "${YELLOW}⏸️  Synchronisation annulée${NC}"
