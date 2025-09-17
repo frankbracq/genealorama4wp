@@ -2,12 +2,11 @@
 /**
  * Plugin Name: Secure Iframe Embed for Genealorama
  * Description: Secure iframe integration to embed the Genealorama web application into WordPress sites with dedicated page templates and credential validation
- * Version: 2.2.2
+ * Version: 2.2.3
  * Author: genealorama.com
  * License: GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain: secure-iframe-embed-for-genealorama
- * Domain Path: /languages
  */
 
 // Empêcher l'accès direct au fichier
@@ -121,7 +120,8 @@ public function genealorama_shortcode($atts) {
     if (empty($partner_id) || empty($partner_secret)) {
         if (current_user_can('manage_options')) {
             return '<p>' . sprintf(
-                esc_html__('Please configure the Genealorama partner information in the %splugin settings%s.', 'secure-iframe-embed-for-genealorama'),
+                /* translators: %1$s and %2$s are opening and closing link tags */
+                esc_html__('Please configure the Genealorama partner information in the %1$splugin settings%2$s.', 'secure-iframe-embed-for-genealorama'),
                 '<a href="' . admin_url('options-general.php?page=secure-iframe-embed-for-genealorama-settings') . '">',
                 '</a>'
             ) . '</p>';
@@ -167,7 +167,8 @@ public function genealorama_shortcode($atts) {
         <?php if ($validation_status === 'invalid' && $is_admin): ?>
         <div class="genealorama-auth-warning" style="background: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
             <?php echo sprintf(
-                esc_html__('%sWarning:%s Genealorama credentials appear to be invalid. %sPlease update them%s.', 'secure-iframe-embed-for-genealorama'),
+                /* translators: %1$s and %2$s are opening and closing strong tags, %3$s and %4$s are opening and closing link tags */
+                esc_html__('%1$sWarning:%2$s Genealorama credentials appear to be invalid. %3$sPlease update them%4$s.', 'secure-iframe-embed-for-genealorama'),
                 '<strong>',
                 '</strong>',
                 '<a href="' . esc_url($settings_url) . '">',
