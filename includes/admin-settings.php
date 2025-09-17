@@ -968,8 +968,8 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
         <div class="wrap genealorama-admin-wrap">
             <!-- Header -->
             <div class="genealorama-header">
-                <h1><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-tree')); ?>"></span> <?php echo esc_html__('Genealorama for WordPress', 'secure-iframe-embed-for-genealorama'); ?></h1>
-                <p><?php echo esc_html__('With Genealorama, you offer your site visitors a unique interactive genealogical experience based on their GEDCOM files.', 'secure-iframe-embed-for-genealorama'); ?></p>
+                <h1><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-tree')); ?>"></span> <?php esc_html_e('Genealorama for WordPress', 'secure-iframe-embed-for-genealorama'); ?></h1>
+                <p><?php esc_html_e('With Genealorama, you offer your site visitors a unique interactive genealogical experience based on their GEDCOM files.', 'secure-iframe-embed-for-genealorama'); ?></p>
             </div>
             
             <?php
@@ -994,7 +994,7 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
             <div class="genealorama-grid">
                 <!-- Carte État de connexion -->
                 <div class="genealorama-card">
-                    <h2><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-plug')); ?>"></span> <?php echo esc_html__('Connection Status', 'secure-iframe-embed-for-genealorama'); ?></h2>
+                    <h2><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-plug')); ?>"></span> <?php esc_html_e('Connection Status', 'secure-iframe-embed-for-genealorama'); ?></h2>
                     
                     <?php if ($connection_status === 'connected'): ?>
                     <div class="genealorama-connection-status connected">
@@ -1002,7 +1002,7 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
                             <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-check-circle')); ?>" style="color: var(--genealorama-success);"></span>
                         </div>
                         <div class="genealorama-status-content">
-                            <div class="genealorama-status-title"><?php echo esc_html__('Connected to Genealorama', 'secure-iframe-embed-for-genealorama'); ?></div>
+                            <div class="genealorama-status-title"><?php esc_html_e('Connected to Genealorama', 'secure-iframe-embed-for-genealorama'); ?></div>
                             <div class="genealorama-status-description">
                                 <?php echo sprintf(
                                     /* translators: %s is the last check date */
@@ -1018,9 +1018,9 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
                             <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-exclamation-circle')); ?>" style="color: var(--genealorama-warning);"></span>
                         </div>
                         <div class="genealorama-status-content">
-                            <div class="genealorama-status-title"><?php echo esc_html__('Waiting for validation', 'secure-iframe-embed-for-genealorama'); ?></div>
+                            <div class="genealorama-status-title"><?php esc_html_e('Waiting for validation', 'secure-iframe-embed-for-genealorama'); ?></div>
                             <div class="genealorama-status-description">
-                                <?php echo esc_html__('Credentials need to be validated', 'secure-iframe-embed-for-genealorama'); ?>
+                                <?php esc_html_e('Credentials need to be validated', 'secure-iframe-embed-for-genealorama'); ?>
                             </div>
                         </div>
                     </div>
@@ -1030,7 +1030,7 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
                             <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-times-circle')); ?>" style="color: var(--genealorama-error);"></span>
                         </div>
                         <div class="genealorama-status-content">
-                            <div class="genealorama-status-title"><?php echo esc_html__('Not connected', 'secure-iframe-embed-for-genealorama'); ?></div>
+                            <div class="genealorama-status-title"><?php esc_html_e('Not connected', 'secure-iframe-embed-for-genealorama'); ?></div>
                             <div class="genealorama-status-description">
                                 <?php echo $domain_changed ? esc_html__('Domain has changed', 'secure-iframe-embed-for-genealorama') : esc_html__('Configuration required', 'secure-iframe-embed-for-genealorama'); ?>
                             </div>
@@ -1047,7 +1047,7 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
                             <?php endif; ?>
                         </div>
                         <div class="description">
-                            <?php echo esc_html__('Automatically detected domain', 'secure-iframe-embed-for-genealorama'); ?>
+                            <?php esc_html_e('Automatically detected domain', 'secure-iframe-embed-for-genealorama'); ?>
                         </div>
                     </div>
                     
@@ -1085,20 +1085,20 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
                                 '<strong>',
                                 '</strong>'
                             ); ?><br>
-                            <?php echo esc_html__('Local sites cannot be connected to Genealorama.', 'secure-iframe-embed-for-genealorama'); ?>
+                            <?php esc_html_e('Local sites cannot be connected to Genealorama.', 'secure-iframe-embed-for-genealorama'); ?>
                         </div>
                     </div>
                     <?php elseif (!$has_credentials || $domain_changed): ?>
                     <!-- Connection form -->
                     <div class="genealorama-form-group">
                         <label for="genealorama_email">
-                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-envelope')); ?>"></span> <?php echo esc_html__('Administrator Email', 'secure-iframe-embed-for-genealorama'); ?>
+                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-envelope')); ?>"></span> <?php esc_html_e('Administrator Email', 'secure-iframe-embed-for-genealorama'); ?>
                         </label>
                         <input type="email" 
                                id="genealorama_email" 
                                placeholder="<?php echo esc_attr__('your@email.com', 'secure-iframe-embed-for-genealorama'); ?>" 
                                value="<?php echo esc_attr(wp_get_current_user()->user_email); ?>">
-                        <div class="description"><?php echo esc_html__('Used to create your partner account', 'secure-iframe-embed-for-genealorama'); ?></div>
+                        <div class="description"><?php esc_html_e('Used to create your partner account', 'secure-iframe-embed-for-genealorama'); ?></div>
                     </div>
                     
                     <button type="button" 
@@ -1106,20 +1106,20 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
                             id="genealorama-connect-btn"
                             style="width: 100%;">
                         <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-link')); ?>"></span>
-                        <?php echo esc_html__('Connect to Genealorama', 'secure-iframe-embed-for-genealorama'); ?>
+                        <?php esc_html_e('Connect to Genealorama', 'secure-iframe-embed-for-genealorama'); ?>
                     </button>
                     <?php else: ?>
                     <!-- Current credentials -->
                     <div class="genealorama-form-group">
                         <label>
-                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-fingerprint')); ?>"></span> <?php echo esc_html__('Partner ID', 'secure-iframe-embed-for-genealorama'); ?>
+                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-fingerprint')); ?>"></span> <?php esc_html_e('Partner ID', 'secure-iframe-embed-for-genealorama'); ?>
                         </label>
                         <input type="text" value="<?php echo esc_attr(get_option('genealorama_partner_id')); ?>" readonly>
                     </div>
                     
                     <div class="genealorama-form-group">
                         <label>
-                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-key')); ?>"></span> <?php echo esc_html__('Secret Key', 'secure-iframe-embed-for-genealorama'); ?>
+                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-key')); ?>"></span> <?php esc_html_e('Secret Key', 'secure-iframe-embed-for-genealorama'); ?>
                         </label>
                         <div class="genealorama-input-group">
                             <input type="password" 
@@ -1137,7 +1137,7 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
                                 class="genealorama-btn genealorama-btn-secondary" 
                                 id="genealorama-validate-btn">
                             <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-sync-alt')); ?>"></span>
-                            <?php echo esc_html__('Validate Connection', 'secure-iframe-embed-for-genealorama'); ?>
+                            <?php esc_html_e('Validate Connection', 'secure-iframe-embed-for-genealorama'); ?>
                         </button>
                         <div class="genealorama-spinner" id="validate-spinner"></div>
                     </div>
@@ -1150,10 +1150,10 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
                 
                 <!-- Display options card -->
                 <div class="genealorama-card">
-                    <h2><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-sliders-h')); ?>"></span> <?php echo esc_html__('Display Options', 'secure-iframe-embed-for-genealorama'); ?></h2>
+                    <h2><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-sliders-h')); ?>"></span> <?php esc_html_e('Display Options', 'secure-iframe-embed-for-genealorama'); ?></h2>
                     
                     <p style="color: #6b7280; margin-bottom: 20px;">
-                        <?php echo esc_html__('Customize Genealorama display on your site', 'secure-iframe-embed-for-genealorama'); ?>
+                        <?php esc_html_e('Customize Genealorama display on your site', 'secure-iframe-embed-for-genealorama'); ?>
                     </p>
                     
                     <div class="genealorama-switch">
@@ -1162,17 +1162,17 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
                                <?php checked($auto_height); ?>>
                         <label for="auto_height_option" class="genealorama-switch-label"></label>
                         <label for="auto_height_option" class="genealorama-switch-text">
-                            <?php echo esc_html__('Automatic height adjustment', 'secure-iframe-embed-for-genealorama'); ?>
+                            <?php esc_html_e('Automatic height adjustment', 'secure-iframe-embed-for-genealorama'); ?>
                         </label>
                     </div>
                     
                     <p style="color: #6b7280; font-size: 13px; margin-top: 10px;">
-                        <?php echo esc_html__('Allows the iframe to automatically adapt to content', 'secure-iframe-embed-for-genealorama'); ?>
+                        <?php esc_html_e('Allows the iframe to automatically adapt to content', 'secure-iframe-embed-for-genealorama'); ?>
                     </p>
                     
                     <div class="genealorama-info-box">
-                        <h4><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-lightbulb')); ?>"></span> <?php echo esc_html__('Shortcode Options', 'secure-iframe-embed-for-genealorama'); ?></h4>
-                        <p style="margin: 10px 0;"><?php echo esc_html__('You can customize each integration:', 'secure-iframe-embed-for-genealorama'); ?></p>
+                        <h4><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-lightbulb')); ?>"></span> <?php esc_html_e('Shortcode Options', 'secure-iframe-embed-for-genealorama'); ?></h4>
+                        <p style="margin: 10px 0;"><?php esc_html_e('You can customize each integration:', 'secure-iframe-embed-for-genealorama'); ?></p>
                         <ul style="margin: 0;">
                             <li><code>auto_height="true|false"</code></li>
                             <li><code>fullscreen="true|false"</code></li>
@@ -1185,7 +1185,7 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
                                 id="save-display-options"
                                 <?php echo !$has_credentials ? 'disabled' : ''; ?>>
                             <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-save')); ?>"></span>
-                            <?php echo esc_html__('Save Options', 'secure-iframe-embed-for-genealorama'); ?>
+                            <?php esc_html_e('Save Options', 'secure-iframe-embed-for-genealorama'); ?>
                         </button>
                         <div class="genealorama-spinner" id="options-spinner"></div>
                     </div>
@@ -1194,33 +1194,33 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
             
             <!-- Usage Section -->
             <div class="genealorama-card full-width">
-                <h2><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-rocket')); ?>"></span> <?php echo esc_html__('How to use Genealorama', 'secure-iframe-embed-for-genealorama'); ?></h2>
+                <h2><span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-rocket')); ?>"></span> <?php esc_html_e('How to use Genealorama', 'secure-iframe-embed-for-genealorama'); ?></h2>
                 
                 <div class="genealorama-usage-grid">
                     <div class="genealorama-usage-card">
                         <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-code')); ?>"></span>
-                        <h4><?php echo esc_html__('Shortcode', 'secure-iframe-embed-for-genealorama'); ?></h4>
-                        <p><?php echo esc_html__('Insert Genealorama anywhere', 'secure-iframe-embed-for-genealorama'); ?></p>
+                        <h4><?php esc_html_e('Shortcode', 'secure-iframe-embed-for-genealorama'); ?></h4>
+                        <p><?php esc_html_e('Insert Genealorama anywhere', 'secure-iframe-embed-for-genealorama'); ?></p>
                         <code>[genealorama_embed]</code>
                     </div>
                     
                     <div class="genealorama-usage-card">
                         <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-file-alt')); ?>"></span>
-                        <h4><?php echo esc_html__('Dedicated Page', 'secure-iframe-embed-for-genealorama'); ?></h4>
-                        <p><?php echo esc_html__('A page has been created automatically', 'secure-iframe-embed-for-genealorama'); ?></p>
+                        <h4><?php esc_html_e('Dedicated Page', 'secure-iframe-embed-for-genealorama'); ?></h4>
+                        <p><?php esc_html_e('A page has been created automatically', 'secure-iframe-embed-for-genealorama'); ?></p>
                         <a href="<?php echo esc_url(get_permalink(get_page_by_path('genealorama'))); ?>" 
                            target="_blank" 
                            class="genealorama-btn genealorama-btn-secondary" 
                            style="margin-top: 10px;">
-                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-external-link-alt')); ?>"></span> <?php echo esc_html__('View Page', 'secure-iframe-embed-for-genealorama'); ?>
+                            <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-external-link-alt')); ?>"></span> <?php esc_html_e('View Page', 'secure-iframe-embed-for-genealorama'); ?>
                         </a>
                     </div>
                     
                     <div class="genealorama-usage-card">
                         <span class="dashicons <?php echo esc_attr($this->get_icon_class('fa-puzzle-piece')); ?>"></span>
-                        <h4><?php echo esc_html__('Widget', 'secure-iframe-embed-for-genealorama'); ?></h4>
-                        <p><?php echo esc_html__('Add Genealorama to your widgets', 'secure-iframe-embed-for-genealorama'); ?></p>
-                        <small style="color: #9ca3af;"><?php echo esc_html__('Coming soon', 'secure-iframe-embed-for-genealorama'); ?></small>
+                        <h4><?php esc_html_e('Widget', 'secure-iframe-embed-for-genealorama'); ?></h4>
+                        <p><?php esc_html_e('Add Genealorama to your widgets', 'secure-iframe-embed-for-genealorama'); ?></p>
+                        <small style="color: #9ca3af;"><?php esc_html_e('Coming soon', 'secure-iframe-embed-for-genealorama'); ?></small>
                     </div>
                 </div>
             </div>
