@@ -85,7 +85,19 @@ cd "$GIT_REPO_PATH"
 for item in "${FILES_TO_SYNC[@]}"; do
     if [ -e "$item" ]; then
         echo "  ✓ Copie de $item"
-        cp -R "$item" "$SVN_TRUNK_PATH/"
+        if [ -d "$item" ]; then
+            # Pour les dossiers, s'assurer de préserver la structure
+            cp -R "$item" "$SVN_TRUNK_PATH/"
+            # Vérifier que le dossier existe bien à la destination
+            if [ ! -d "$SVN_TRUNK_PATH/$item" ]; then
+                echo -e "${YELLOW}  ⚠️  Structure de dossier corrigée pour $item${NC}"
+                mkdir -p "$SVN_TRUNK_PATH/$item"
+                cp -R "$item"/* "$SVN_TRUNK_PATH/$item/"
+            fi
+        else
+            # Pour les fichiers
+            cp "$item" "$SVN_TRUNK_PATH/"
+        fi
     else
         echo -e "${YELLOW}  ⚠️  $item n'existe pas dans le dépôt Git${NC}"
     fi
