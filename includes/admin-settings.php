@@ -978,14 +978,14 @@ class Secure_Iframe_Embed_For_Genealorama_Admin {
             if (isset($_GET['settings-updated']) && $_GET['settings-updated'] == 'true') {
                 echo '<div class="genealorama-alert genealorama-alert-success">
                     <span class="dashicons ' . esc_attr($this->get_icon_class('fa-check-circle')) . '"></span>
-                    <div>
-                        <?php echo sprintf(
+                    <div>' .
+                        sprintf(
                             /* translators: %1$s and %2$s are opening and closing strong tags */
                             esc_html__('%1$sSuccess!%2$s Your settings have been saved.', 'secure-iframe-embed-for-genealorama'),
                             '<strong>',
                             '</strong>'
-                        ); ?>
-                    </div>
+                        ) .
+                    '</div>
                 </div>';
             }
             ?>
