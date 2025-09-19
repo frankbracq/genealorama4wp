@@ -1,6 +1,6 @@
 === Secure Iframe Embed for Genealorama ===
 Contributors: fbracq
-Tags: genealogy, family-tree, iframe, embed, secure, authentication, family-history
+Tags: genealogy, family-tree, iframe, embed, secure
 Requires at least: 5.0
 Tested up to: 6.8
 Stable tag: 2.2.4
