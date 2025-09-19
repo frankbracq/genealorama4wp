@@ -1,0 +1,367 @@
+# Translation of Plugins - Secure Iframe Embed for Genealorama - Stable Readme (latest release) in French (France)
+# This file is distributed under the same license as the Plugins - Secure Iframe Embed for Genealorama - Stable Readme (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: +0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: GlotPress/4.0.1\n"
+"Language: fr\n"
+"Project-Id-Version: Plugins - Secure Iframe Embed for Genealorama - Stable Readme (latest release)\n"
+
+#. Short description.
+#, gp-priority: high
+msgid "Secure iframe integration to embed the Genealorama web application into WordPress sites with dedicated page templates and credential validation."
+msgstr "Intégration sécurisée d'iframe pour intégrer l'application web Genealorama dans les sites WordPress avec des modèles de page dédiés et une validation des identifiants."
+
+#. Plugin name.
+#, gp-priority: high
+msgid "Secure Iframe Embed for Genealorama"
+msgstr "Intégration Sécurisée Iframe pour Genealorama"
+
+#. Found in faq paragraph.
+msgid "Yes, the plugin uses HMAC-SHA256 signatures for authentication and requires users to be logged in to WordPress."
+msgstr "Oui, l'extension utilise des signatures HMAC-SHA256 pour l'authentification et exige que les utilisateurs soient connectés à WordPress."
+
+#. Found in faq paragraph.
+msgid "Yes, you can use <code>[genealorama_embed]</code> on any page or post."
+msgstr "Oui, vous pouvez utiliser <code>[genealorama_embed]</code> sur n'importe quelle page ou article."
+
+#. Found in faq paragraph.
+msgid "No! The plugin automatically creates a genealogy page at <code>/genealorama/</code> with the proper template. Just activate and visit the page."
+msgstr "Non ! L'extension crée automatiquement une page de généalogie à <code>/genealorama/</code> avec le modèle approprié. Il suffit d'activer et de visiter la page."
+
+#. Found in faq header.
+msgid "Is the integration secure?"
+msgstr "L'intégration est-elle sécurisée ?"
+
+#. Found in faq header.
+msgid "Can I use the shortcode on multiple pages?"
+msgstr "Puis-je utiliser le shortcode sur plusieurs pages ?"
+
+#. Found in faq header.
+msgid "Do I need to configure anything after installation?"
+msgstr "Dois-je configurer quelque chose après l'installation ?"
+
+#. Found in installation paragraph.
+msgid "To activate integration with genealogie.app:"
+msgstr "Pour activer l'intégration avec genealogie.app :"
+
+#. Found in installation list item.
+msgid "Click \"Save Settings\""
+msgstr "Cliquez sur \"Enregistrer les réglages\""
+
+#. Found in installation list item.
+msgid "Credentials are automatically filled and validated"
+msgstr "Les identifiants sont automatiquement remplis et validés"
+
+#. Found in installation list item.
+msgid "Enter your <strong>Email</strong> and click \"Get My Credentials\""
+msgstr "Entrez votre <strong>Email</strong> et cliquez sur \"Obtenir mes identifiants\""
+
+#. Found in installation list item.
+msgid "Go to <strong>Settings &gt; Genealorama Settings</strong>"
+msgstr "Allez dans <strong>Réglages &gt; Paramètres Genealorama</strong>"
+
+#. Found in installation list item.
+msgid "<strong>Ready!</strong> Visit <code>/genealorama/</code> on your site"
+msgstr "<strong>Prêt !</strong> Visitez <code>/genealorama/</code> sur votre site"
+
+#. Found in installation list item.
+msgid "Activate the plugin"
+msgstr "Activez l'extension"
+
+#. Found in installation list item.
+msgid "Upload the <code>.zip</code> file via Plugins &gt; Add New &gt; Upload Plugin"
+msgstr "Téléchargez le fichier <code>.zip</code> via Extensions &gt; Ajouter &gt; Téléverser une extension"
+
+#. Found in installation list item.
+msgid "Download the latest version from the releases page"
+msgstr "Téléchargez la dernière version depuis la page des versions"
+
+#. Found in installation header.
+msgid "API Keys Configuration"
+msgstr "Configuration des clés API"
+
+#. Found in description paragraph.
+msgid "These external connections are required for the plugin to function properly and provide secure access to genealogy services."
+msgstr "Ces connexions externes sont nécessaires pour que l'extension fonctionne correctement et fournisse un accès sécurisé aux services de généalogie."
+
+#. Found in description paragraph.
+msgid "This plugin connects to external services to provide genealogy visualization functionality:"
+msgstr "Cette extension se connecte aux services externes pour fournir des fonctionnalités de visualisation généalogique :"
+
+#. Found in description paragraph.
+msgid ""
+"With options:\n"
+"    [genealorama_embed auto_height=\"true\" fullscreen=\"true\"]"
+msgstr ""
+"Avec options :\n"
+"    [genealorama_embed auto_height=\"true\" fullscreen=\"true\"]"
+
+#. Found in description paragraph.
+msgid ""
+"Use the shortcode on any page or post:\n"
+"    [genealorama_embed]"
+msgstr ""
+"Utilisez le shortcode sur n'importe quelle page ou article :\n"
+"    [genealorama_embed]"
+
+#. Found in description paragraph.
+msgid "<strong>No manual configuration needed</strong> to get started!"
+msgstr "<strong>Aucune configuration manuelle nécessaire</strong> pour commencer !"
+
+#. Found in description paragraph.
+msgid ""
+"Upon activation, the plugin:\n"
+"✅ <strong>Automatically creates a \"Genealogy\" page</strong> accessible at <code>/genealorama/</code>\n"
+"✅ Applies a full-page template (without WordPress header/footer)\n"
+"✅ Configures integration with the shortcode <code>[genealorama_embed auto_height=\"true\"]</code>"
+msgstr ""
+"À l'activation, l'extension :\n"
+"✅ <strong>Crée automatiquement une page \"Généalogie\"</strong> accessible à <code>/genealorama/</code>\n"
+"✅ Applique un modèle pleine page (sans en-tête/pied de page WordPress)\n"
+"✅ Configure l'intégration avec le shortcode <code>[genealorama_embed auto_height=\"true\"]</code>"
+
+#. Found in description paragraph.
+msgid "It allows logged-in users to <strong>view, visualize, or interact with genealogical research results</strong> while maintaining secure access rights."
+msgstr "Elle permet aux utilisateurs connectés de <strong>consulter, visualiser ou interagir avec les résultats de recherche généalogique</strong> tout en maintenant des droits d'accès sécurisés."
+
+#. Found in description paragraph.
+msgid "<strong>Secure Iframe Embed for Genealorama</strong> is a WordPress plugin designed to integrate the Genealorama web application into any WordPress site through interactive and secure iframes."
+msgstr "<strong>Intégration Sécurisée Iframe pour Genealorama</strong> est une extension WordPress conçue pour intégrer l'application web Genealorama dans n'importe quel site WordPress via des iframes interactives et sécurisées."
+
+#. Found in description list item.
+msgid "<strong>When</strong>: During initial setup when admin clicks \"Get My Credentials\""
+msgstr "<strong>Quand</strong> : Lors de la configuration initiale lorsque l'administrateur clique sur \"Obtenir mes identifiants\""
+
+#. Found in description list item.
+msgid "<strong>Data sent</strong>: Site domain, admin email, WordPress version, plugin version"
+msgstr "<strong>Données envoyées</strong> : Domaine du site, email administrateur, version WordPress, version de l'extension"
+
+#. Found in description list item.
+msgid "<strong>Service URL</strong>: https://partner-registration.genealogie.app"
+msgstr "<strong>URL du service</strong> : https://partner-registration.genealogie.app"
+
+#. Found in description list item.
+msgid "<strong>Purpose</strong>: Registers WordPress sites as authorized partners for the genealogy service"
+msgstr "<strong>Objectif</strong> : Enregistre les sites WordPress comme partenaires autorisés pour le service de généalogie"
+
+#. Found in description list item.
+msgid "<strong>Privacy Policy</strong>: https://genealorama.com/privacy"
+msgstr "<strong>Politique de confidentialité</strong> : https://genealorama.com/privacy"
+
+#. Found in description list item.
+msgid "<strong>Terms of Service</strong>: https://genealorama.com/terms"
+msgstr "<strong>Conditions d'utilisation</strong> : https://genealorama.com/terms"
+
+#. Found in description list item.
+msgid "<strong>When</strong>: Every time a user loads the genealogy interface"
+msgstr "<strong>Quand</strong> : À chaque fois qu'un utilisateur charge l'interface de généalogie"
+
+#. Found in description list item.
+msgid "<strong>Data sent</strong>: User authentication tokens, timestamps, and signatures for secure access"
+msgstr "<strong>Données envoyées</strong> : Jetons d'authentification utilisateur, horodatages et signatures pour un accès sécurisé"
+
+#. Found in description list item.
+msgid "<strong>Service URL</strong>: https://genealogie.app"
+msgstr "<strong>URL du service</strong> : https://genealogie.app"
+
+#. Found in description list item.
+msgid "<strong>Purpose</strong>: Provides the main genealogy application interface through a secure iframe"
+msgstr "<strong>Objectif</strong> : Fournit l'interface principale de l'application de généalogie via une iframe sécurisée"
+
+#. Found in description list item.
+msgid "<code>fullscreen</code> - Full screen mode (default: <code>false</code>)"
+msgstr "<code>fullscreen</code> - Mode plein écran (par défaut : <code>false</code>)"
+
+#. Found in description list item.
+msgid "<code>auto_height</code> - Automatic height adjustment (default: <code>true</code>)"
+msgstr "<code>auto_height</code> - Ajustement automatique de la hauteur (par défaut : <code>true</code>)"
+
+#. Found in description list item.
+msgid "<code>src</code> - Application URL (default: <code>https://genealogie.app/iframe-entry/</code>)"
+msgstr "<code>src</code> - URL de l'application (par défaut : <code>https://genealogie.app/iframe-entry/</code>)"
+
+#. Found in description list item.
+msgid "🆕 <strong>Error detection</strong>: Automatic alert if credentials are invalid"
+msgstr "🆕 <strong>Détection d'erreur</strong> : Alerte automatique si les identifiants sont invalides"
+
+#. Found in description list item.
+msgid "<strong>Iframe isolation</strong>: Secure communication via postMessage"
+msgstr "<strong>Isolation iframe</strong> : Communication sécurisée via postMessage"
+
+#. Found in description list item.
+msgid "<strong>Temporal validation</strong>: Protection against replay attacks"
+msgstr "<strong>Validation temporelle</strong> : Protection contre les attaques par rejeu"
+
+#. Found in description list item.
+msgid "<strong>HMAC signature</strong>: Each request is cryptographically signed"
+msgstr "<strong>Signature HMAC</strong> : Chaque requête est signée cryptographiquement"
+
+#. Found in description list item.
+msgid "<strong>Authentication required</strong>: Users must be logged in to WordPress"
+msgstr "<strong>Authentification requise</strong> : Les utilisateurs doivent être connectés à WordPress"
+
+#. Found in description list item.
+msgid "🆕 <strong>Credential validation</strong>: Automatic and manual verification of API keys"
+msgstr "🆕 <strong>Validation des identifiants</strong> : Vérification automatique et manuelle des clés API"
+
+#. Found in description list item.
+msgid "✅ <strong>Bidirectional communication</strong>: Support for messages between iframe and parent site"
+msgstr "✅ <strong>Communication bidirectionnelle</strong> : Support des messages entre iframe et site parent"
+
+#. Found in description list item.
+msgid "✅ <strong>Adaptive height</strong>: Automatic iframe resizing"
+msgstr "✅ <strong>Hauteur adaptative</strong> : Redimensionnement automatique de l'iframe"
+
+#. Found in description list item.
+msgid "✅ <strong>Members only</strong>: Access limited to logged-in users"
+msgstr "✅ <strong>Membres uniquement</strong> : Accès limité aux utilisateurs connectés"
+
+#. Found in description list item.
+msgid "✅ <strong>Enhanced security</strong>: HMAC-SHA256 signature for authentication"
+msgstr "✅ <strong>Sécurité renforcée</strong> : Signature HMAC-SHA256 pour l'authentification"
+
+#. Found in description list item.
+msgid "✅ <strong>Flexible shortcode</strong>: <code>[genealorama_embed]</code> usable on any page"
+msgstr "✅ <strong>Shortcode flexible</strong> : <code>[genealorama_embed]</code> utilisable sur n'importe quelle page"
+
+#. Found in description list item.
+msgid "✅ <strong>Immersive template</strong>: Full-page display without distractions  "
+msgstr "✅ <strong>Modèle immersif</strong> : Affichage pleine page sans distractions  "
+
+#. Found in description list item.
+msgid "✅ <strong>Automatic dedicated page</strong>: A <code>/genealorama/</code> page created on activation"
+msgstr "✅ <strong>Page dédiée automatique</strong> : Une page <code>/genealorama/</code> créée à l'activation"
+
+#. Found in description header.
+msgid "Partner Registration API"
+msgstr "API d'enregistrement des partenaires"
+
+#. Found in description header.
+msgid "Genealorama Application Service"
+msgstr "Service d'application Genealorama"
+
+#. Found in description header.
+msgid "External Services"
+msgstr "Services externes"
+
+#. Found in description header.
+msgid "Shortcode Parameters"
+msgstr "Paramètres du shortcode"
+
+#. Found in description header.
+msgid "📖 Usage"
+msgstr "📖 Utilisation"
+
+#. Found in description header.
+msgid "🔒 Security"
+msgstr "🔒 Sécurité"
+
+#. Found in description header.
+msgid "🔧 Features"
+msgstr "🔧 Fonctionnalités"
+
+#. Found in description header.
+msgid "✨ Automatic Installation"
+msgstr "✨ Installation automatique"
+
+#. Screenshot description.
+msgid "Shortcode integration example"
+msgstr "Exemple d'intégration de shortcode"
+
+#. Screenshot description.
+msgid "Full-page genealogy interface"
+msgstr "Interface de généalogie pleine page"
+
+#. Screenshot description.
+msgid "Plugin settings page with credential validation"
+msgstr "Page de réglages de l'extension avec validation des identifiants"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Better security measures"
+msgstr "Meilleures mesures de sécurité"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Improved error messaging"
+msgstr "Amélioration des messages d'erreur"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Enhanced admin interface"
+msgstr "Interface d'administration améliorée"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added automatic credential validation"
+msgstr "Ajout de la validation automatique des identifiants"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Security enhancements"
+msgstr "Améliorations de sécurité"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Improved error handling and user feedback"
+msgstr "Amélioration de la gestion d'erreurs et des retours utilisateur"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Enhanced credential validation system"
+msgstr "Système de validation des identifiants amélioré"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Modern admin interface and technical fixes"
+msgstr "Interface d'administration moderne et corrections techniques"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Enhanced security and authentication"
+msgstr "Sécurité et authentification améliorées"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Fixed wp_enqueue_scripts implementation"
+msgstr "Correction de l'implémentation wp_enqueue_scripts"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Improved WordPress standards compliance"
+msgstr "Amélioration de la conformité aux standards WordPress"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Full English translation"
+msgstr "Traduction anglaise complète"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Complete rebranding to Genealorama"
+msgstr "Rebranding complet vers Genealorama"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Better compliance with WordPress.org guidelines"
+msgstr "Meilleure conformité aux directives WordPress.org"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Enhanced asset management using WordPress uploads directory"
+msgstr "Gestion d'actifs améliorée utilisant le répertoire uploads de WordPress"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Improved build process and GitHub Actions"
+msgstr "Amélioration du processus de compilation et des GitHub Actions"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Fixed text domain to match plugin slug"
+msgstr "Correction du domaine de texte pour correspondre au slug de l'extension"

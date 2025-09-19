@@ -1,0 +1,213 @@
+# French (France) translation for Secure Iframe Embed for Genealorama
+# Copyright (C) 2025 genealorama.com
+# This file is distributed under the same license as the Secure Iframe Embed for Genealorama package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Secure Iframe Embed for Genealorama 2.2.4\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-09-19 14:00+0000\n"
+"PO-Revision-Date: 2025-09-19 14:00+0000\n"
+"Last-Translator: genealorama.com\n"
+"Language-Team: French (France)\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Claude Code\n"
+
+# genealorama.php
+msgid "Please log in to access this feature."
+msgstr "Veuillez vous connecter pour accéder à cette fonctionnalité."
+
+#. translators: %1$s and %2$s are opening and closing link tags
+msgid "Please configure the Genealorama partner information in the %1$splugin settings%2$s."
+msgstr "Veuillez configurer les informations de partenaire Genealorama dans les %1$sparamètres du plugin%2$s."
+
+msgid "This feature is not yet configured. Please contact the site administrator."
+msgstr "Cette fonctionnalité n'est pas encore configurée. Veuillez contacter l'administrateur du site."
+
+#. translators: %1$s and %2$s are opening and closing strong tags, %3$s and %4$s are opening and closing link tags
+msgid "%1$sWarning:%2$s Genealorama credentials appear to be invalid. %3$sPlease update them%4$s."
+msgstr "%1$sAttention :%2$s Les identifiants Genealorama semblent invalides. %3$sVeuillez les mettre à jour%4$s."
+
+# admin-settings.php - Error messages
+msgid "Security error"
+msgstr "Erreur de sécurité"
+
+msgid "Valid credentials"
+msgstr "Identifiants valides"
+
+msgid "Invalid credentials"
+msgstr "Identifiants invalides"
+
+msgid "Never"
+msgstr "Jamais"
+
+msgid "A few seconds ago"
+msgstr "Il y a quelques secondes"
+
+#. translators: %d is the number of minutes
+msgid "Il y a %d minute"
+msgid_plural "Il y a %d minutes"
+msgstr[0] "Il y a %d minute"
+msgstr[1] "Il y a %d minutes"
+
+#. translators: %d is the number of hours
+msgid "Il y a %d heure"
+msgid_plural "Il y a %d heures"
+msgstr[0] "Il y a %d heure"
+msgstr[1] "Il y a %d heures"
+
+msgid "Security error, please refresh the page."
+msgstr "Erreur de sécurité, veuillez rafraîchir la page."
+
+msgid "Local development sites cannot be registered. Please deploy your site to a public domain."
+msgstr "Les sites de développement local ne peuvent pas être enregistrés. Veuillez déployer votre site sur un domaine public."
+
+msgid "Email missing."
+msgstr "Email manquant."
+
+#. translators: %s is the error message
+msgid "Connection error: %s"
+msgstr "Erreur de connexion : %s"
+
+msgid "Unknown error while retrieving credentials."
+msgstr "Erreur inconnue lors de la récupération des identifiants."
+
+msgid "Display options saved"
+msgstr "Options d'affichage sauvegardées"
+
+# admin-settings.php - UI Elements
+msgid "Genealorama Settings"
+msgstr "Paramètres Genealorama"
+
+msgid "Genealorama"
+msgstr "Genealorama"
+
+msgid "Genealorama for WordPress"
+msgstr "Genealorama pour WordPress"
+
+msgid "With Genealorama, you offer your site visitors a unique interactive genealogical experience based on their GEDCOM files."
+msgstr "Avec Genealorama, vous offrez à vos visiteurs une expérience généalogique interactive unique basée sur leurs fichiers GEDCOM."
+
+#. translators: %1$s and %2$s are opening and closing strong tags
+msgid "%1$sSuccess!%2$s Your settings have been saved."
+msgstr "%1$sSuccès !%2$s Vos paramètres ont été sauvegardés."
+
+msgid "Connection Status"
+msgstr "État de la connexion"
+
+msgid "Connected to Genealorama"
+msgstr "Connecté à Genealorama"
+
+#. translators: %s is the last check date
+msgid "Last check: %s"
+msgstr "Dernière vérification : %s"
+
+msgid "Waiting for validation"
+msgstr "En attente de validation"
+
+msgid "Credentials need to be validated"
+msgstr "Les identifiants doivent être validés"
+
+msgid "Not connected"
+msgstr "Non connecté"
+
+msgid "Domain has changed"
+msgstr "Le domaine a changé"
+
+msgid "Configuration required"
+msgstr "Configuration requise"
+
+msgid "Automatically detected domain"
+msgstr "Domaine détecté automatiquement"
+
+#. translators: %1$s and %2$s are opening and closing strong tags
+msgid "%1$sDomain changed!%2$s"
+msgstr "%1$sLe domaine a changé !%2$s"
+
+#. translators: %s is the old domain
+msgid "Old: %s"
+msgstr "Ancien : %s"
+
+#. translators: %s is the new domain
+msgid "New: %s"
+msgstr "Nouveau : %s"
+
+#. translators: %1$s and %2$s are opening and closing strong tags
+msgid "%1$sDevelopment environment%2$s"
+msgstr "%1$sEnvironnement de développement%2$s"
+
+msgid "Local sites cannot be connected to Genealorama."
+msgstr "Les sites locaux ne peuvent pas être connectés à Genealorama."
+
+msgid "Administrator Email"
+msgstr "Email de l'administrateur"
+
+msgid "your@email.com"
+msgstr "votre@email.com"
+
+msgid "Used to create your partner account"
+msgstr "Utilisé pour créer votre compte partenaire"
+
+msgid "Connect to Genealorama"
+msgstr "Se connecter à Genealorama"
+
+msgid "Partner ID"
+msgstr "ID Partenaire"
+
+msgid "Secret Key"
+msgstr "Clé secrète"
+
+msgid "Validate Connection"
+msgstr "Valider la connexion"
+
+msgid "Display Options"
+msgstr "Options d'affichage"
+
+msgid "Customize Genealorama display on your site"
+msgstr "Personnalisez l'affichage de Genealorama sur votre site"
+
+msgid "Automatic height adjustment"
+msgstr "Ajustement automatique de la hauteur"
+
+msgid "Allows the iframe to automatically adapt to content"
+msgstr "Permet à l'iframe de s'adapter automatiquement au contenu"
+
+msgid "Shortcode Options"
+msgstr "Options du shortcode"
+
+msgid "You can customize each integration:"
+msgstr "Vous pouvez personnaliser chaque intégration :"
+
+msgid "Save Options"
+msgstr "Sauvegarder les options"
+
+msgid "How to use Genealorama"
+msgstr "Comment utiliser Genealorama"
+
+msgid "Shortcode"
+msgstr "Shortcode"
+
+msgid "Insert Genealorama anywhere"
+msgstr "Insérez Genealorama n'importe où"
+
+msgid "Dedicated Page"
+msgstr "Page dédiée"
+
+msgid "A page has been created automatically"
+msgstr "Une page a été créée automatiquement"
+
+msgid "View Page"
+msgstr "Voir la page"
+
+msgid "Widget"
+msgstr "Widget"
+
+msgid "Add Genealorama to your widgets"
+msgstr "Ajoutez Genealorama à vos widgets"
+
+msgid "Coming soon"
+msgstr "Bientôt disponible"

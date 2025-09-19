@@ -1,0 +1,268 @@
+# Translation template for Secure Iframe Embed for Genealorama
+# Copyright (C) 2025 genealorama.com
+# This file is distributed under the same license as the Secure Iframe Embed for Genealorama package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Secure Iframe Embed for Genealorama 2.2.4\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/secure-iframe-embed-for-genealorama\n"
+"POT-Creation-Date: 2025-09-19 14:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: genealorama.php:111
+msgid "Please log in to access this feature."
+msgstr ""
+
+#: genealorama.php:125
+#. translators: %1$s and %2$s are opening and closing link tags
+msgid "Please configure the Genealorama partner information in the %1$splugin settings%2$s."
+msgstr ""
+
+#: genealorama.php:130
+msgid "This feature is not yet configured. Please contact the site administrator."
+msgstr ""
+
+#: genealorama.php:172
+#. translators: %1$s and %2$s are opening and closing strong tags, %3$s and %4$s are opening and closing link tags
+msgid "%1$sWarning:%2$s Genealorama credentials appear to be invalid. %3$sPlease update them%4$s."
+msgstr ""
+
+#: includes/admin-settings.php:744
+#: includes/admin-settings.php:857
+msgid "Security error"
+msgstr ""
+
+#: includes/admin-settings.php:751
+msgid "Valid credentials"
+msgstr ""
+
+#: includes/admin-settings.php:751
+msgid "Invalid credentials"
+msgstr ""
+
+#: includes/admin-settings.php:762
+msgid "Never"
+msgstr ""
+
+#: includes/admin-settings.php:768
+msgid "A few seconds ago"
+msgstr ""
+
+#: includes/admin-settings.php:773
+#. translators: %d is the number of minutes
+msgid "Il y a %d minute"
+msgid_plural "Il y a %d minutes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/admin-settings.php:780
+#. translators: %d is the number of hours
+msgid "Il y a %d heure"
+msgid_plural "Il y a %d heures"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/admin-settings.php:794
+msgid "Security error, please refresh the page."
+msgstr ""
+
+#: includes/admin-settings.php:801
+msgid "Local development sites cannot be registered. Please deploy your site to a public domain."
+msgstr ""
+
+#: includes/admin-settings.php:806
+msgid "Email missing."
+msgstr ""
+
+#: includes/admin-settings.php:833
+#. translators: %s is the error message
+msgid "Connection error: %s"
+msgstr ""
+
+#: includes/admin-settings.php:840
+msgid "Unknown error while retrieving credentials."
+msgstr ""
+
+#: includes/admin-settings.php:865
+msgid "Display options saved"
+msgstr ""
+
+#: includes/admin-settings.php:884
+msgid "Genealorama Settings"
+msgstr ""
+
+#: includes/admin-settings.php:885
+msgid "Genealorama"
+msgstr ""
+
+#: includes/admin-settings.php:971
+msgid "Genealorama for WordPress"
+msgstr ""
+
+#: includes/admin-settings.php:972
+msgid "With Genealorama, you offer your site visitors a unique interactive genealogical experience based on their GEDCOM files."
+msgstr ""
+
+#: includes/admin-settings.php:984
+#. translators: %1$s and %2$s are opening and closing strong tags
+msgid "%1$sSuccess!%2$s Your settings have been saved."
+msgstr ""
+
+#: includes/admin-settings.php:997
+msgid "Connection Status"
+msgstr ""
+
+#: includes/admin-settings.php:1005
+msgid "Connected to Genealorama"
+msgstr ""
+
+#: includes/admin-settings.php:1009
+#. translators: %s is the last check date
+msgid "Last check: %s"
+msgstr ""
+
+#: includes/admin-settings.php:1021
+msgid "Waiting for validation"
+msgstr ""
+
+#: includes/admin-settings.php:1023
+msgid "Credentials need to be validated"
+msgstr ""
+
+#: includes/admin-settings.php:1033
+msgid "Not connected"
+msgstr ""
+
+#: includes/admin-settings.php:1035
+msgid "Domain has changed"
+msgstr ""
+
+#: includes/admin-settings.php:1035
+msgid "Configuration required"
+msgstr ""
+
+#: includes/admin-settings.php:1050
+msgid "Automatically detected domain"
+msgstr ""
+
+#: includes/admin-settings.php:1059
+#. translators: %1$s and %2$s are opening and closing strong tags
+msgid "%1$sDomain changed!%2$s"
+msgstr ""
+
+#: includes/admin-settings.php:1065
+#. translators: %s is the old domain
+msgid "Old: %s"
+msgstr ""
+
+#: includes/admin-settings.php:1070
+#. translators: %s is the new domain
+msgid "New: %s"
+msgstr ""
+
+#: includes/admin-settings.php:1084
+#. translators: %1$s and %2$s are opening and closing strong tags
+msgid "%1$sDevelopment environment%2$s"
+msgstr ""
+
+#: includes/admin-settings.php:1088
+msgid "Local sites cannot be connected to Genealorama."
+msgstr ""
+
+#: includes/admin-settings.php:1095
+msgid "Administrator Email"
+msgstr ""
+
+#: includes/admin-settings.php:1099
+msgid "your@email.com"
+msgstr ""
+
+#: includes/admin-settings.php:1101
+msgid "Used to create your partner account"
+msgstr ""
+
+#: includes/admin-settings.php:1109
+msgid "Connect to Genealorama"
+msgstr ""
+
+#: includes/admin-settings.php:1115
+msgid "Partner ID"
+msgstr ""
+
+#: includes/admin-settings.php:1122
+msgid "Secret Key"
+msgstr ""
+
+#: includes/admin-settings.php:1140
+msgid "Validate Connection"
+msgstr ""
+
+#: includes/admin-settings.php:1153
+msgid "Display Options"
+msgstr ""
+
+#: includes/admin-settings.php:1156
+msgid "Customize Genealorama display on your site"
+msgstr ""
+
+#: includes/admin-settings.php:1165
+msgid "Automatic height adjustment"
+msgstr ""
+
+#: includes/admin-settings.php:1170
+msgid "Allows the iframe to automatically adapt to content"
+msgstr ""
+
+#: includes/admin-settings.php:1174
+msgid "Shortcode Options"
+msgstr ""
+
+#: includes/admin-settings.php:1175
+msgid "You can customize each integration:"
+msgstr ""
+
+#: includes/admin-settings.php:1188
+msgid "Save Options"
+msgstr ""
+
+#: includes/admin-settings.php:1197
+msgid "How to use Genealorama"
+msgstr ""
+
+#: includes/admin-settings.php:1202
+msgid "Shortcode"
+msgstr ""
+
+#: includes/admin-settings.php:1203
+msgid "Insert Genealorama anywhere"
+msgstr ""
+
+#: includes/admin-settings.php:1209
+msgid "Dedicated Page"
+msgstr ""
+
+#: includes/admin-settings.php:1210
+msgid "A page has been created automatically"
+msgstr ""
+
+#: includes/admin-settings.php:1215
+msgid "View Page"
+msgstr ""
+
+#: includes/admin-settings.php:1221
+msgid "Widget"
+msgstr ""
+
+#: includes/admin-settings.php:1222
+msgid "Add Genealorama to your widgets"
+msgstr ""
+
+#: includes/admin-settings.php:1223
+msgid "Coming soon"
+msgstr ""
